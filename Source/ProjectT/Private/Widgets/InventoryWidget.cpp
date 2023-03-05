@@ -13,7 +13,7 @@ void UInventoryWidget::AddSlot(ABaseItem* Item)
 	if (InventorySlotClass)
 	{
 		UInventorySlot* InventorySlot = CreateWidget<UInventorySlot>(GetWorld(), InventorySlotClass);
-		//InventorySlot->ItemIcon->SetBrushFromTexture(Item->Icon);
+		InventorySlot->ItemIcon->SetBrushFromTexture(Item->Icon);
 		InventorySlot->Item = Item->GetClass();
 
 		int32 row = Grid->GetChildrenCount() / 5;
@@ -22,7 +22,3 @@ void UInventoryWidget::AddSlot(ABaseItem* Item)
 		Grid->AddChildToUniformGrid(InventorySlot, row, colum);
 	}
 } 
-
-void UInventoryWidget::RemoveSlot(ABaseItem* Item)
-{
-}

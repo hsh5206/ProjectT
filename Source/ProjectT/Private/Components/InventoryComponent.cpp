@@ -5,6 +5,7 @@
 
 #include "Items/BaseItem.h"
 #include "Widgets/InventoryWidget.h"
+#include "Characters/BaseCharacter.h"
 
 UInventoryComponent::UInventoryComponent()
 {
@@ -48,8 +49,18 @@ void UInventoryComponent::AddItem(ABaseItem* Item)
 	if (!Character) return;
 
 	Inventory.Add(Item->GetClass());
+	InventoryWidget->AddSlot(Item);
 }
 
 void UInventoryComponent::DropItem(TSubclassOf<ABaseItem> Item)
 {
+	FVector Location = GetOwner()->GetActorLocation();
+	Location += GetOwner()->GetActorForwardVector() * 100.f;
+	FRotator Rotation = GetOwner()->GetActorRotation();
+	ServerSpawnItem(Item, Location, Rotation);
+}
+
+void UInventoryComponent::ServerSpawnItem_Implementation(TSubclassOf<ABaseItem> Item, FVector Location, FRotator Rotation)
+{
+	GetWorld()->SpawnActor(Item, &Location, &Rotation);
 }

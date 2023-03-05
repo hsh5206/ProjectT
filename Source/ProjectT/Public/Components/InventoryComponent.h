@@ -26,6 +26,7 @@ private:
 	class ABaseCharacter* Character;
 
 public:
+	UPROPERTY()
 	UInventoryWidget* InventoryWidget;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<UInventoryWidget> InventoryWidgetClass;
@@ -37,4 +38,6 @@ public:
 	void AddItem(ABaseItem* Item);
 	UFUNCTION(BlueprintCallable)
 	void DropItem(TSubclassOf<ABaseItem> Item);
+	UFUNCTION(Server, Reliable)
+	void ServerSpawnItem(TSubclassOf<ABaseItem> Item, FVector Location, FRotator Rotation);
 };

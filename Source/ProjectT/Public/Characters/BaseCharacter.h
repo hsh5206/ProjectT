@@ -62,8 +62,10 @@ public:
 	void OnInventoryPressed();
 	/** Interaction */
 	void OnInteractionPressed();
+	UFUNCTION(Server, Reliable)
+	void ServerDestryoItem(ABaseItem* Item);
 
-	UPROPERTY(ReplicatedUsing = OnRep_OverlappingItem)
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_OverlappingItem)
 	ABaseItem* OverlappingItem = nullptr;
 	UFUNCTION()
 	void OnRep_OverlappingItem(ABaseItem* LastItem);

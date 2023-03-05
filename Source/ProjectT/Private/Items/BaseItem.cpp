@@ -21,6 +21,8 @@ ABaseItem::ABaseItem()
 	PickupWidget->SetupAttachment(GetRootComponent());
 	PickupWidget->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	PickupWidget->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+
+	bReplicates = true;
 }
 
 void ABaseItem::BeginPlay()

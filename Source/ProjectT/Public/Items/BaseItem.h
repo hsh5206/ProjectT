@@ -40,7 +40,7 @@ public:
 	UTexture2D* Icon;
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMesh* ItemMesh;
-
+	
 	void SetPickupWidgetVisibility(bool bValue);
 
 };

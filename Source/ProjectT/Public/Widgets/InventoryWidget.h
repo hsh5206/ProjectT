@@ -18,7 +18,6 @@ class PROJECTT_API UInventoryWidget : public UUserWidget
 
 public:
 	void AddSlot(ABaseItem* Item);
-	void RemoveSlot(ABaseItem* Item);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class TSubclassOf<class UInventorySlot> InventorySlotClass;

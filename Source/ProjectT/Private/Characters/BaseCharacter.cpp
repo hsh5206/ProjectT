@@ -163,8 +163,15 @@ void ABaseCharacter::OnInteractionPressed()
 	if (OverlappingItem)
 	{
 		InventoryComponent->AddItem(OverlappingItem);
+		ServerDestryoItem(OverlappingItem);
+		OverlappingItem = nullptr;
 		return;
 	}
+}
+
+void ABaseCharacter::ServerDestryoItem_Implementation(ABaseItem* Item)
+{
+	Item->Destroy();
 }
 
 void ABaseCharacter::OnRep_OverlappingItem(ABaseItem* LastItem)
