@@ -17,8 +17,6 @@ ABaseItem::ABaseItem()
 	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
 	Sphere->SetupAttachment(GetRootComponent());
 
-	
-
 	bReplicates = true;
 	SetReplicateMovement(true);
 }
@@ -31,6 +29,11 @@ void ABaseItem::BeginPlay()
 	{
 		Sphere->OnComponentBeginOverlap.AddDynamic(this, &ThisClass::OnSphereOverlap);
 		Sphere->OnComponentEndOverlap.AddDynamic(this, &ThisClass::OnSphereOverlapEnd);
+	}
+
+	if (ItemData.ItemMesh)
+	{
+		Mesh->SetStaticMesh(ItemData.ItemMesh);
 	}
 }
 

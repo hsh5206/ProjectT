@@ -18,11 +18,24 @@ class PROJECTT_API UInventoryWidget : public UUserWidget
 
 public:
 	void UpdateInventory(TArray<TSubclassOf<ABaseItem>> Inventory);
+	void UpdateInventoryWithGridArr();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class TSubclassOf<class UInventorySlot> InventorySlotClass;
+	TSubclassOf<class UInventorySlot> InventorySlotClass;
+
+	TArray<FGridInfo> GridArr;
 
 	/** πŸ¿ŒµÂ */
 	UPROPERTY(meta = (BindWidget))
 	class UUniformGridPanel* Grid;
+};
+
+USTRUCT()
+struct FGridInfo
+{
+	GENERATED_USTRUCT_BODY()
+
+public:
+	TSubclassOf<ABaseItem> Item;
+	int32 Amount = 1;
 };

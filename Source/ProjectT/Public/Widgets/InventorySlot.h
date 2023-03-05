@@ -17,9 +17,12 @@ class PROJECTT_API UInventorySlot : public UUserWidget
 public:
 	UPROPERTY(meta = (BindWidget))
 	class UImage* ItemIcon;
+	UPROPERTY(meta = (BindWidget))
+	class UTextBlock* Amount;
 
 	UPROPERTY(BlueprintReadOnly)
 	TSubclassOf<class ABaseItem> Item;
 
 	void SetItemValues();
+	void SetAmount(int32 amount);
 };

@@ -54,7 +54,14 @@ void UInventoryComponent::AddItem(ABaseItem* Item)
 
 void UInventoryComponent::DropItem(TSubclassOf<ABaseItem> Item)
 {
-	Inventory.RemoveSingle(Item);
+	for (int32 i = Inventory.Num()-1; i >= 0; i--)
+	{
+		if (Inventory[i] == Item)
+		{
+			Inventory.RemoveAt(i);
+			break;
+		}
+	}
 	InventoryWidget->UpdateInventory(Inventory);
 	FVector Location = GetOwner()->GetActorLocation();
 	Location += GetOwner()->GetActorForwardVector() * 100.f;

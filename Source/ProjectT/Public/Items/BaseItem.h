@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "ItemData.h"
 #include "BaseItem.generated.h"
 
 UCLASS()
@@ -28,13 +29,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-public:	
-	UPROPERTY(EditDefaultsOnly)
-	FName Name;
-	UPROPERTY(EditDefaultsOnly)
-	FText Description;
-	UPROPERTY(EditDefaultsOnly)
-	UTexture2D* Icon;
-	UPROPERTY(EditDefaultsOnly)
-	UStaticMesh* ItemMesh;
+public:
+	UPROPERTY(EditAnywhere)
+	FItemData ItemData;
 };
