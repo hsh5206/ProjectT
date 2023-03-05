@@ -8,17 +8,18 @@
 #include "Widgets/InventorySlot.h"
 #include "Items/BaseItem.h"
 
-void UInventoryWidget::AddSlot(ABaseItem* Item)
+void UInventoryWidget::UpdateInventory(TArray<TSubclassOf<ABaseItem>> Inventory)
 {
-	if (InventorySlotClass)
+	Grid->ClearChildren();
+	for (auto Item : Inventory)
 	{
 		UInventorySlot* InventorySlot = CreateWidget<UInventorySlot>(GetWorld(), InventorySlotClass);
-		InventorySlot->ItemIcon->SetBrushFromTexture(Item->Icon);
-		InventorySlot->Item = Item->GetClass();
+		InventorySlot->ItemIcon->SetBrushFromTexture(Item.GetDefaultObject()->Icon);
+		InventorySlot->Item = Item;
 
 		int32 row = Grid->GetChildrenCount() / 5;
 		int32 colum = Grid->GetChildrenCount() % 5;
 
 		Grid->AddChildToUniformGrid(InventorySlot, row, colum);
 	}
-} 
+}

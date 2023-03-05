@@ -17,7 +17,7 @@ class PROJECTT_API UInventoryWidget : public UUserWidget
 	GENERATED_BODY()
 
 public:
-	void AddSlot(ABaseItem* Item);
+	void UpdateInventory(TArray<TSubclassOf<ABaseItem>> Inventory);
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class TSubclassOf<class UInventorySlot> InventorySlotClass;

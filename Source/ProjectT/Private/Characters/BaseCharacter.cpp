@@ -186,7 +186,7 @@ void ABaseCharacter::ServerDestryoItem_Implementation(ABaseItem* Item)
 
 void ABaseCharacter::OnRep_OverlappingItems()
 {
-	if (OverlappingItems.Num() != 0)
+	if (OverlappingItems.Num() != 0 && !PickupWidget->IsInViewport())
 	{
 		PickupWidget->AddToViewport();
 	}

@@ -49,11 +49,13 @@ void UInventoryComponent::AddItem(ABaseItem* Item)
 	if (!Character) return;
 
 	Inventory.Add(Item->GetClass());
-	InventoryWidget->AddSlot(Item);
+	InventoryWidget->UpdateInventory(Inventory);
 }
 
 void UInventoryComponent::DropItem(TSubclassOf<ABaseItem> Item)
 {
+	Inventory.RemoveSingle(Item);
+	InventoryWidget->UpdateInventory(Inventory);
 	FVector Location = GetOwner()->GetActorLocation();
 	Location += GetOwner()->GetActorForwardVector() * 100.f;
 	FRotator Rotation = GetOwner()->GetActorRotation();
