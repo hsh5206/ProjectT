@@ -17,22 +17,15 @@ ABaseItem::ABaseItem()
 	Sphere = CreateDefaultSubobject<USphereComponent>(TEXT("Sphere"));
 	Sphere->SetupAttachment(GetRootComponent());
 
-	PickupWidget = CreateDefaultSubobject<UWidgetComponent>(TEXT("PickupWidget"));
-	PickupWidget->SetupAttachment(GetRootComponent());
-	PickupWidget->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
-	PickupWidget->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Overlap);
+	
 
 	bReplicates = true;
+	SetReplicateMovement(true);
 }
 
 void ABaseItem::BeginPlay()
 {
 	Super::BeginPlay();
-
-	if (PickupWidget)
-	{
-		PickupWidget->SetVisibility(false);
-	}
 	
 	if (HasAuthority())
 	{
@@ -50,32 +43,30 @@ void ABaseItem::Tick(float DeltaTime)
 
 void ABaseItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Overlap Begin"));
 	if (ABaseCharacter* Character = Cast<ABaseCharacter>(OtherActor))
 	{
-		//PickupWidget->SetVisibility(true);
-		Character->OverlappingItem = this;
 		if (Character->IsLocallyControlled())
 		{
-			PickupWidget->SetVisibility(true);
+			if (Character->OverlappingItems.Num() == 0)
+			{
+				Character->PickupWidget->AddToViewport();
+			}
 		}
+		Character->OverlappingItems.Add(this);
 	}
 }
 
 void ABaseItem::OnSphereOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Overlap End"));
 	if (ABaseCharacter* Character = Cast<ABaseCharacter>(OtherActor))
 	{
-		Character->OverlappingItem = nullptr;
+		Character->OverlappingItems.Remove(this);
 		if (Character->IsLocallyControlled())
 		{
-			PickupWidget->SetVisibility(false);
+			if (Character->OverlappingItems.Num() == 0)
+			{
+				Character->PickupWidget->RemoveFromParent();
+			}
 		}
 	}
-}
-
-void ABaseItem::SetPickupWidgetVisibility(bool bValue)
-{
-	PickupWidget->SetVisibility(bValue);
 }

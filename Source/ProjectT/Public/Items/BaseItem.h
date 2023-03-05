@@ -25,9 +25,6 @@ public:
 	UFUNCTION()
 	void OnSphereOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
-	UPROPERTY(EditDefaultsOnly)
-	class UWidgetComponent* PickupWidget;
-
 protected:
 	virtual void BeginPlay() override;
 
@@ -40,7 +37,4 @@ public:
 	UTexture2D* Icon;
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMesh* ItemMesh;
-	
-	void SetPickupWidgetVisibility(bool bValue);
-
 };

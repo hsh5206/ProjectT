@@ -65,8 +65,13 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerDestryoItem(ABaseItem* Item);
 
-	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_OverlappingItem)
-	ABaseItem* OverlappingItem = nullptr;
+	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_OverlappingItems)
+	TArray<ABaseItem*> OverlappingItems;
 	UFUNCTION()
-	void OnRep_OverlappingItem(ABaseItem* LastItem);
+	void OnRep_OverlappingItems();
+
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<UUserWidget> PickupWidgetClass;
+	UPROPERTY()
+	UUserWidget* PickupWidget;
 };

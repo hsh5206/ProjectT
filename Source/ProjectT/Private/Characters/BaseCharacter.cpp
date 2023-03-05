@@ -10,6 +10,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputTriggers.h"
 #include "Net/UnrealNetwork.h"
+#include "Blueprint/UserWidget.h"
 
 #include "Components/InventoryComponent.h"
 #include "Items/BaseItem.h"
@@ -36,6 +37,11 @@ void ABaseCharacter::BeginPlay()
 	if (PlayerController)
 	{
 		PlayerController->SetShowMouseCursor(true);
+	}
+
+	if (PickupWidgetClass)
+	{
+		PickupWidget = CreateWidget(GetWorld(), PickupWidgetClass);
 	}
 }
 
@@ -120,7 +126,7 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
-	DOREPLIFETIME_CONDITION(ABaseCharacter, OverlappingItem, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ABaseCharacter, OverlappingItems, COND_OwnerOnly);
 }
 
 void ABaseCharacter::OnMoveAction()
@@ -160,11 +166,15 @@ void ABaseCharacter::OnInventoryPressed()
 
 void ABaseCharacter::OnInteractionPressed()
 {
-	if (OverlappingItem)
+	if (OverlappingItems.Num() != 0)
 	{
-		InventoryComponent->AddItem(OverlappingItem);
-		ServerDestryoItem(OverlappingItem);
-		OverlappingItem = nullptr;
+		ABaseItem* Item = OverlappingItems.Pop();
+		InventoryComponent->AddItem(Item);
+		if (OverlappingItems.Num() == 0)
+		{
+			PickupWidget->RemoveFromParent();
+		}
+		ServerDestryoItem(Item);
 		return;
 	}
 }
@@ -174,14 +184,14 @@ void ABaseCharacter::ServerDestryoItem_Implementation(ABaseItem* Item)
 	Item->Destroy();
 }
 
-void ABaseCharacter::OnRep_OverlappingItem(ABaseItem* LastItem)
+void ABaseCharacter::OnRep_OverlappingItems()
 {
-	if (OverlappingItem)
+	if (OverlappingItems.Num() != 0)
 	{
-		OverlappingItem->SetPickupWidgetVisibility(true);
+		PickupWidget->AddToViewport();
 	}
 	else
 	{
-		LastItem->SetPickupWidgetVisibility(false);
+		PickupWidget->RemoveFromParent();
 	}
 }
