@@ -9,7 +9,7 @@
 
 class UInputMappingContext;
 class UInputAction;
-
+class ABaseItem;
 
 UCLASS()
 class PROJECTT_API ABaseCharacter : public ACharacter
@@ -20,6 +20,8 @@ public:
 	ABaseCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	virtual void PostInitializeComponents() override;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -42,6 +44,8 @@ public:
 	UInputAction* JumpInputAction;
 	UPROPERTY(EditDefaultsOnly)
 	UInputAction* InventoryAction;
+	UPROPERTY(EditDefaultsOnly)
+	UInputAction* Interaction;
 
 	/** Move */
 	bool bIsFirst = false;
@@ -53,7 +57,14 @@ public:
 	void OnJumpActionEnd();
 	virtual void Landed(const FHitResult& Hit) override;
 	/** Inventory */
-	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UInventoryComponent* InventoryComponent;*/
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UInventoryComponent* InventoryComponent;
 	void OnInventoryPressed();
+	/** Interaction */
+	void OnInteractionPressed();
+
+	UPROPERTY(ReplicatedUsing = OnRep_OverlappingItem)
+	ABaseItem* OverlappingItem = nullptr;
+	UFUNCTION()
+	void OnRep_OverlappingItem(ABaseItem* LastItem);
 };

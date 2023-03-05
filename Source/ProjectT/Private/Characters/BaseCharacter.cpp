@@ -4,13 +4,15 @@
 #include "Characters/BaseCharacter.h"
 #include "GameFrameWork/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
-
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
-
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputTriggers.h"
+#include "Net/UnrealNetwork.h"
+
+#include "Components/InventoryComponent.h"
+#include "Items/BaseItem.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -21,6 +23,9 @@ ABaseCharacter::ABaseCharacter()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
+
+	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
+	InventoryComponent->SetIsReplicated(true);
 }
 
 void ABaseCharacter::BeginPlay()
@@ -94,7 +99,28 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		{
 			PlayerEnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Started, this, &ABaseCharacter::OnInventoryPressed);
 		}
+		if (Interaction)
+		{
+			PlayerEnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Started, this, &ABaseCharacter::OnInteractionPressed);
+		}
 	}
+}
+
+void ABaseCharacter::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	if (InventoryComponent)
+	{
+		InventoryComponent->Character = this;
+	}
+}
+
+void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME_CONDITION(ABaseCharacter, OverlappingItem, COND_OwnerOnly);
 }
 
 void ABaseCharacter::OnMoveAction()
@@ -129,4 +155,26 @@ void ABaseCharacter::Landed(const FHitResult& Hit)
 
 void ABaseCharacter::OnInventoryPressed()
 {
+	InventoryComponent->ToggleInventory();
+}
+
+void ABaseCharacter::OnInteractionPressed()
+{
+	if (OverlappingItem)
+	{
+		InventoryComponent->AddItem(OverlappingItem);
+		return;
+	}
+}
+
+void ABaseCharacter::OnRep_OverlappingItem(ABaseItem* LastItem)
+{
+	if (OverlappingItem)
+	{
+		OverlappingItem->SetPickupWidgetVisibility(true);
+	}
+	else
+	{
+		LastItem->SetPickupWidgetVisibility(false);
+	}
 }
