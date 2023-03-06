@@ -40,4 +40,19 @@ public:
 	void DropItem(TSubclassOf<ABaseItem> Item);
 	UFUNCTION(Server, Reliable)
 	void ServerSpawnItem(TSubclassOf<ABaseItem> Item, FVector Location, FRotator Rotation);
+	UFUNCTION(BlueprintCallable)
+	void SpawnItem(TSubclassOf<ABaseItem> Item);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSpawnItem(TSubclassOf<ABaseItem> Item, FVector Location, FRotator Rotation);
+
+	UPROPERTY(BlueprintReadOnly)
+	class ABaseWeapon* EquippingWeapon;
+	UFUNCTION(BlueprintCallable)
+	void Equip(TSubclassOf<ABaseItem> Item);
+	UFUNCTION(Server, Reliable)
+	void ServerEquip(TSubclassOf<ABaseItem> Item);
+	UFUNCTION(BlueprintCallable)
+	void Unquip(TSubclassOf<ABaseItem> Item);
+	UFUNCTION(Server, Reliable)
+	void ServerUnequip(TSubclassOf<ABaseItem> Item);
 };

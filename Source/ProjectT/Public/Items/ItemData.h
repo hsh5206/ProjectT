@@ -26,7 +26,7 @@ public:
 	UTexture2D* Icon;
 	UPROPERTY(EditDefaultsOnly)
 	UStaticMesh* ItemMesh;
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
 	EItemType ItemType;
 	UPROPERTY(EditDefaultsOnly)
 	bool bCanStack = false;
