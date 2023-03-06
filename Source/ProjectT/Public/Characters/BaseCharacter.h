@@ -31,6 +31,7 @@ protected:
 	class UCameraComponent* Camera;
 	UPROPERTY(EditDefaultsOnly)
 	class USpringArmComponent* SpringArm;
+
 	UPROPERTY()
 	class APlayerController* PlayerController;
 
@@ -74,4 +75,11 @@ public:
 	TSubclassOf<UUserWidget> PickupWidgetClass;
 	UPROPERTY()
 	UUserWidget* PickupWidget;
+
+	UPROPERTY(EditDefaultsOnly, Category = Rune)
+	class UStaticMeshComponent* Rune1;
+	UPROPERTY(EditDefaultsOnly, Category = Rune)
+	class UStaticMeshComponent* Rune2;
+	UPROPERTY(EditDefaultsOnly, Category = Rune)
+	class UStaticMeshComponent* Rune3;
 };

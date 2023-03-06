@@ -48,11 +48,7 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	class ABaseWeapon* EquippingWeapon;
 	UPROPERTY(BlueprintReadOnly)
-	class ABaseArmor* EquippingArmorHead;
-	UPROPERTY(BlueprintReadOnly)
-	class ABaseArmor* EquippingArmorTop;
-	UPROPERTY(BlueprintReadOnly)
-	class ABaseArmor* EquippingArmorBottom;
+	TArray<TSubclassOf<ABaseItem>> EquippingRunes;
 
 	UFUNCTION(BlueprintCallable)
 	void Equip(TSubclassOf<ABaseItem> Item);
@@ -62,4 +58,5 @@ public:
 	void Unquip(TSubclassOf<ABaseItem> Item);
 	UFUNCTION(Server, Reliable)
 	void ServerUnequip(TSubclassOf<ABaseItem> Item);
+	void SetRunesLocation();
 };

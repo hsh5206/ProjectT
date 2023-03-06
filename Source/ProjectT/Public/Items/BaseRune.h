@@ -4,13 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "Items/BaseItem.h"
-#include "BaseArmor.generated.h"
+#include "BaseRune.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class PROJECTT_API ABaseArmor : public ABaseItem
+class PROJECTT_API ABaseRune : public ABaseItem
 {
 	GENERATED_BODY()
 	

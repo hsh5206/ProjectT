@@ -25,6 +25,13 @@ ABaseCharacter::ABaseCharacter()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 
+	Rune1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rune1"));
+	Rune1->SetupAttachment(GetMesh(), FName("Rune1"));
+	Rune2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rune2"));
+	Rune2->SetupAttachment(GetMesh(), FName("Rune2"));
+	Rune3 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rune3"));
+	Rune3->SetupAttachment(GetMesh(), FName("Rune3"));
+
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 	InventoryComponent->SetIsReplicated(true);
 }

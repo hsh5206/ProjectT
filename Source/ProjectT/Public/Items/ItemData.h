@@ -8,9 +8,7 @@ enum class EItemType : uint8
 {
 	EIT_Default UMETA(DisplayName = "Default"),
 	EIT_Weapon UMETA(DisplayName = "Weapon"),
-	EIT_ArmorHead UMETA(DisplayName = "AmmorHead"),
-	EIT_ArmorTop UMETA(DisplayName = "AmmorTop"),
-	EIT_ArmorBottom UMETA(DisplayName = "AmmorBottom"),
+	EIT_Rune UMETA(DisplayName = "Rune"),
 	EIT_Use UMETA(DisplayName = "Use")
 };
 
