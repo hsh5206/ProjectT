@@ -18,6 +18,7 @@ public:
 	UInventoryComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 	friend class ABaseCharacter;
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -45,9 +46,9 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastSpawnItem(TSubclassOf<ABaseItem> Item, FVector Location, FRotator Rotation);
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
 	class ABaseWeapon* EquippingWeapon;
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Replicated)
 	TArray<TSubclassOf<ABaseItem>> EquippingRunes;
 
 	UFUNCTION(BlueprintCallable)
@@ -59,4 +60,7 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerUnequip(TSubclassOf<ABaseItem> Item);
 	void SetRunesLocation();
+	UFUNCTION(Server, Reliable)
+	void ServerSetRunesLocation();
+
 };

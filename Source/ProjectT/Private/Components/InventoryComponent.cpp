@@ -4,6 +4,7 @@
 #include "Components/InventoryComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Components/SphereComponent.h"
+#include "Net/UnrealNetwork.h"
 
 #include "Items/BaseItem.h"
 #include "Widgets/InventoryWidget.h"
@@ -33,6 +34,14 @@ void UInventoryComponent::TickComponent(float DeltaTime, ELevelTick TickType, FA
 
 }
 
+void UInventoryComponent::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(UInventoryComponent, EquippingRunes);
+	DOREPLIFETIME(UInventoryComponent, EquippingWeapon);
+}
+
 void UInventoryComponent::ToggleInventory()
 {
 	if (InventoryWidget)
@@ -58,12 +67,10 @@ void UInventoryComponent::AddItem(ABaseItem* Item)
 
 void UInventoryComponent::DropItem(TSubclassOf<ABaseItem> Item)
 {
-	UE_LOG(LogTemp, Warning, TEXT("DropItme called"));
 	for (int32 i = Inventory.Num()-1; i >= 0; i--)
 	{
 		if (Inventory[i] == Item)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Removed"));
 			Inventory.RemoveAt(i);
 			break;
 		}
@@ -74,8 +81,6 @@ void UInventoryComponent::DropItem(TSubclassOf<ABaseItem> Item)
 
 void UInventoryComponent::SpawnItem(TSubclassOf<ABaseItem> Item)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Spawned"));
-
 	FVector Location = GetOwner()->GetActorLocation();
 	Location += GetOwner()->GetActorForwardVector() * 100.f;
 	FRotator Rotation = GetOwner()->GetActorRotation();
@@ -87,6 +92,24 @@ void UInventoryComponent::SpawnItem(TSubclassOf<ABaseItem> Item)
 	{
 		ServerSpawnItem(Item, Location, Rotation);
 	}
+}
+
+void UInventoryComponent::ServerSpawnItem_Implementation(TSubclassOf<ABaseItem> Item, FVector Location, FRotator Rotation)
+{
+	if (GetOwner()->HasAuthority())
+	{
+		GetWorld()->SpawnActor(Item, &Location, &Rotation);
+		return;
+	}
+	else
+	{
+		MulticastSpawnItem(Item, Location, Rotation);
+	}
+}
+
+void UInventoryComponent::MulticastSpawnItem_Implementation(TSubclassOf<ABaseItem> Item, FVector Location, FRotator Rotation)
+{
+	GetWorld()->SpawnActor(Item, &Location, &Rotation);
 }
 
 void UInventoryComponent::Equip(TSubclassOf<ABaseItem> Item)
@@ -130,10 +153,43 @@ void UInventoryComponent::Equip(TSubclassOf<ABaseItem> Item)
 	// Rune
 	if (Cast<ABaseRune>(Item->GetDefaultObject()))
 	{
+		if (GetOwner()->HasAuthority())
+		{
+			EquippingRunes.Add(Item);
+			SetRunesLocation();
+		}
+		else
+		{
+			ServerEquip(Item);
+		}
+	}
+	
+}
+
+void UInventoryComponent::ServerEquip_Implementation(TSubclassOf<ABaseItem> Item)
+{
+	if (Cast<ABaseWeapon>(Item->GetDefaultObject()))
+	{
+		FVector Location = GetOwner()->GetActorLocation();
+		Location += GetOwner()->GetActorForwardVector() * 100.f;
+		FRotator Rotation = GetOwner()->GetActorRotation();
+
+		EquippingWeapon = Cast<ABaseWeapon>(GetWorld()->SpawnActor(Item, &Location, &Rotation));
+		EquippingWeapon->SetOwner(GetOwner());
+		EquippingWeapon->Mesh->SetSimulatePhysics(false);
+		EquippingWeapon->Sphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+		const USkeletalMeshSocket* Socket = Cast<ACharacter>(GetOwner())->GetMesh()->GetSocketByName(FName("Weapon"));
+		if (Socket)
+		{
+			Socket->AttachActor(EquippingWeapon, Cast<ACharacter>(GetOwner())->GetMesh());
+		}
+	}
+	else if (Cast<ABaseRune>(Item->GetDefaultObject()))
+	{
 		EquippingRunes.Add(Item);
 		SetRunesLocation();
 	}
-	
 }
 
 void UInventoryComponent::Unquip(TSubclassOf<ABaseItem> Item)
@@ -159,6 +215,57 @@ void UInventoryComponent::Unquip(TSubclassOf<ABaseItem> Item)
 	
 	// Runes
 	if (Cast<ABaseRune>(Item->GetDefaultObject()))
+	{
+		if (GetOwner()->HasAuthority())
+		{
+			SpawnItem(Item);
+
+			int32 i;
+			for (i = EquippingRunes.Num() - 1; i >= 0; i--)
+			{
+				if (EquippingRunes[i] == Item)
+				{
+					break;
+				}
+			}
+
+			EquippingRunes.RemoveAt(i);
+
+			if (i == 0)
+			{
+				Cast<ABaseCharacter>(GetOwner())->Rune1->SetStaticMesh(nullptr);
+			}
+			else if (i == 1)
+			{
+				Cast<ABaseCharacter>(GetOwner())->Rune2->SetStaticMesh(nullptr);
+			}
+			else if (i == 2)
+			{
+				Cast<ABaseCharacter>(GetOwner())->Rune3->SetStaticMesh(nullptr);
+			}
+
+			SetRunesLocation();
+		}
+		else
+		{
+			ServerUnequip(Item);
+		}
+	}
+}
+
+void UInventoryComponent::ServerUnequip_Implementation(TSubclassOf<ABaseItem> Item)
+{
+	if (Cast<ABaseWeapon>(Item->GetDefaultObject()))
+	{
+		EquippingWeapon->SetOwner(nullptr);
+		EquippingWeapon->Mesh->SetSimulatePhysics(true);
+		EquippingWeapon->Sphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+
+		SpawnItem(EquippingWeapon->GetClass());
+		EquippingWeapon->Destroy();
+		EquippingWeapon = nullptr;
+	}
+	else if (Cast<ABaseRune>(Item->GetDefaultObject()))
 	{
 		SpawnItem(Item);
 
@@ -192,7 +299,33 @@ void UInventoryComponent::Unquip(TSubclassOf<ABaseItem> Item)
 
 void UInventoryComponent::SetRunesLocation()
 {
+	if (GetOwner()->HasAuthority())
+	{
+		Cast<ABaseCharacter>(GetOwner())->Rune1->SetStaticMesh(nullptr);
+		Cast<ABaseCharacter>(GetOwner())->Rune2->SetStaticMesh(nullptr);
+		Cast<ABaseCharacter>(GetOwner())->Rune3->SetStaticMesh(nullptr);
 
+		if (EquippingRunes.Num() >= 1)
+		{
+			Cast<ABaseCharacter>(GetOwner())->Rune1->SetStaticMesh(EquippingRunes[0].GetDefaultObject()->ItemData.ItemMesh);
+		}
+		if (EquippingRunes.Num() >= 2)
+		{
+			Cast<ABaseCharacter>(GetOwner())->Rune2->SetStaticMesh(EquippingRunes[1].GetDefaultObject()->ItemData.ItemMesh);
+		}
+		if (EquippingRunes.Num() >= 3)
+		{
+			Cast<ABaseCharacter>(GetOwner())->Rune3->SetStaticMesh(EquippingRunes[2].GetDefaultObject()->ItemData.ItemMesh);
+		}
+	}
+	else
+	{
+		ServerSetRunesLocation();
+	}
+}
+
+void UInventoryComponent::ServerSetRunesLocation_Implementation()
+{
 	Cast<ABaseCharacter>(GetOwner())->Rune1->SetStaticMesh(nullptr);
 	Cast<ABaseCharacter>(GetOwner())->Rune2->SetStaticMesh(nullptr);
 	Cast<ABaseCharacter>(GetOwner())->Rune3->SetStaticMesh(nullptr);
@@ -209,52 +342,4 @@ void UInventoryComponent::SetRunesLocation()
 	{
 		Cast<ABaseCharacter>(GetOwner())->Rune3->SetStaticMesh(EquippingRunes[2].GetDefaultObject()->ItemData.ItemMesh);
 	}
-
-}
-
-void UInventoryComponent::ServerUnequip_Implementation(TSubclassOf<ABaseItem> Item)
-{
-	EquippingWeapon->SetOwner(nullptr);
-	EquippingWeapon->Mesh->SetSimulatePhysics(true);
-	EquippingWeapon->Sphere->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-
-	SpawnItem(EquippingWeapon->GetClass());
-	EquippingWeapon->Destroy();
-	EquippingWeapon = nullptr;
-}
-
-void UInventoryComponent::ServerEquip_Implementation(TSubclassOf<ABaseItem> Item)
-{
-	FVector Location = GetOwner()->GetActorLocation();
-	Location += GetOwner()->GetActorForwardVector() * 100.f;
-	FRotator Rotation = GetOwner()->GetActorRotation();
-
-	EquippingWeapon = Cast<ABaseWeapon>(GetWorld()->SpawnActor(Item, &Location, &Rotation));
-	EquippingWeapon->SetOwner(GetOwner());
-	EquippingWeapon->Mesh->SetSimulatePhysics(false);
-	EquippingWeapon->Sphere->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-
-	const USkeletalMeshSocket* Socket = Cast<ACharacter>(GetOwner())->GetMesh()->GetSocketByName(FName("SKT_Weapon"));
-	if (Socket)
-	{
-		Socket->AttachActor(EquippingWeapon, Cast<ACharacter>(GetOwner())->GetMesh());
-	}
-}
-
-void UInventoryComponent::ServerSpawnItem_Implementation(TSubclassOf<ABaseItem> Item, FVector Location, FRotator Rotation)
-{
-	if (GetOwner()->HasAuthority())
-	{
-		GetWorld()->SpawnActor(Item, &Location, &Rotation);
-		return;
-	}
-	else
-	{
-		MulticastSpawnItem(Item, Location, Rotation);
-	}
-}
-
-void UInventoryComponent::MulticastSpawnItem_Implementation(TSubclassOf<ABaseItem> Item, FVector Location, FRotator Rotation)
-{
-	GetWorld()->SpawnActor(Item, &Location, &Rotation);
 }

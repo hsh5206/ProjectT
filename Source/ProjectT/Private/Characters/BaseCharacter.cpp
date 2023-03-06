@@ -27,10 +27,14 @@ ABaseCharacter::ABaseCharacter()
 
 	Rune1 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rune1"));
 	Rune1->SetupAttachment(GetMesh(), FName("Rune1"));
+	Rune1->SetIsReplicated(true);
 	Rune2 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rune2"));
 	Rune2->SetupAttachment(GetMesh(), FName("Rune2"));
+	Rune2->SetIsReplicated(true);
 	Rune3 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Rune3"));
 	Rune3->SetupAttachment(GetMesh(), FName("Rune3"));
+	Rune3->SetIsReplicated(true);
+
 
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 	InventoryComponent->SetIsReplicated(true);
