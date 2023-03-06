@@ -47,6 +47,13 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	class ABaseWeapon* EquippingWeapon;
+	UPROPERTY(BlueprintReadOnly)
+	class ABaseArmor* EquippingArmorHead;
+	UPROPERTY(BlueprintReadOnly)
+	class ABaseArmor* EquippingArmorTop;
+	UPROPERTY(BlueprintReadOnly)
+	class ABaseArmor* EquippingArmorBottom;
+
 	UFUNCTION(BlueprintCallable)
 	void Equip(TSubclassOf<ABaseItem> Item);
 	UFUNCTION(Server, Reliable)
