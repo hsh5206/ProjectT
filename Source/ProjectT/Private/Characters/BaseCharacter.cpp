@@ -13,7 +13,11 @@
 #include "Blueprint/UserWidget.h"
 
 #include "Components/InventoryComponent.h"
+#include "Components/CombatComponent.h"
 #include "Items/BaseItem.h"
+#include "AbilitySystem/PTAbilitySystemComponent.h"
+#include "AbilitySystem/PTAttributeSet.h"
+#include "AbilitySystem/PTGameplayAbility.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -35,9 +39,16 @@ ABaseCharacter::ABaseCharacter()
 	Rune3->SetupAttachment(GetMesh(), FName("Rune3"));
 	Rune3->SetIsReplicated(true);
 
-
 	InventoryComponent = CreateDefaultSubobject<UInventoryComponent>(TEXT("Inventory"));
 	InventoryComponent->SetIsReplicated(true);
+
+	CombatComponent = CreateDefaultSubobject<UCombatComponent>(TEXT("Combat"));
+	CombatComponent->SetIsReplicated(true);
+
+	AbilitySystemComponent = CreateDefaultSubobject<UPTAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	AbilitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+	Attributes = CreateDefaultSubobject<UPTAttributeSet>(TEXT("AttributeSet"));
 }
 
 void ABaseCharacter::BeginPlay()
@@ -120,6 +131,13 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		{
 			PlayerEnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Started, this, &ABaseCharacter::OnInteractionPressed);
 		}
+	}
+
+	/** GAS Binding */
+	if (AbilitySystemComponent && InputComponent)
+	{
+		const FGameplayAbilityInputBinds Binds("Confirm", "Cancle", "EPTAbilityInputID", static_cast<int32>(EPTAbilityInputID::Confirm), static_cast<int32>(EPTAbilityInputID::Cancel));
+		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, Binds);
 	}
 }
 
@@ -204,5 +222,72 @@ void ABaseCharacter::OnRep_OverlappingItems()
 	else
 	{
 		PickupWidget->RemoveFromParent();
+	}
+}
+
+UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const
+{
+	return AbilitySystemComponent;
+}
+
+
+/**
+*
+*	GAS
+*
+*/
+void ABaseCharacter::InitializeAttributes()
+{
+	if (AbilitySystemComponent && DefaultAttributeEffect)
+	{
+		FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+		EffectContext.AddSourceObject(this);
+
+		FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributeEffect, 1, EffectContext);
+		if (SpecHandle.IsValid())
+		{
+			FActiveGameplayEffectHandle GEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+		}
+	}
+}
+
+void ABaseCharacter::GiveAbilities()
+{
+	if (HasAuthority() && AbilitySystemComponent)
+	{
+		for (TSubclassOf<UPTGameplayAbility>& StartupAbility : DefaultsAbilities)
+		{
+			AbilitySystemComponent->GiveAbility(
+				FGameplayAbilitySpec(StartupAbility, 1, static_cast<int32>(StartupAbility.GetDefaultObject()->AbilityInputID), this)
+			);
+		}
+	}
+}
+
+// 서버에서 초기화 (서버만 어빌리티를 가지고 있기)
+void ABaseCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+
+	// AbilitySystem의 owner와 avatar세팅
+	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+
+	InitializeAttributes();
+	GiveAbilities();
+}
+
+// 클라이언트에서 초기화
+void ABaseCharacter::OnRep_PlayerState()
+{
+	Super::OnRep_PlayerState();
+
+	AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	InitializeAttributes();
+
+	// Input에 Ability Binding
+	if (AbilitySystemComponent && InputComponent)
+	{
+		const FGameplayAbilityInputBinds Binds("Confirm", "Cancle", "EPTAbilityInputID", static_cast<int32>(EPTAbilityInputID::Confirm), static_cast<int32>(EPTAbilityInputID::Cancel));
+		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, Binds);
 	}
 }

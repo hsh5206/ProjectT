@@ -4,15 +4,20 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "AbilitySystemInterface.h"
+#include "GameplayEffectTypes.h"
 #include "BaseCharacter.generated.h"
-
 
 class UInputMappingContext;
 class UInputAction;
 class ABaseItem;
 
+class UPTAbilitySystemComponent;
+class UPTAttributeSet;
+class UPTGameplayAbility;
+
 UCLASS()
-class PROJECTT_API ABaseCharacter : public ACharacter
+class PROJECTT_API ABaseCharacter : public ACharacter, public IAbilitySystemInterface
 {
 	GENERATED_BODY()
 
@@ -57,14 +62,19 @@ public:
 	void OnJumpAction();
 	void OnJumpActionEnd();
 	virtual void Landed(const FHitResult& Hit) override;
-	/** Inventory */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UInventoryComponent* InventoryComponent;
-	void OnInventoryPressed();
 	/** Interaction */
 	void OnInteractionPressed();
 	UFUNCTION(Server, Reliable)
 	void ServerDestryoItem(ABaseItem* Item);
+
+	/** Inventory */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UInventoryComponent* InventoryComponent;
+	void OnInventoryPressed();
+
+	/** Combat */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UCombatComponent* CombatComponent;
 
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_OverlappingItems)
 	TArray<ABaseItem*> OverlappingItems;
@@ -82,4 +92,32 @@ public:
 	class UStaticMeshComponent* Rune2;
 	UPROPERTY(EditDefaultsOnly, Category = Rune)
 	class UStaticMeshComponent* Rune3;
+
+/**
+*
+*	GAS
+*
+*/
+	virtual UAbilitySystemComponent* GetAbilitySystemComponent() const override;
+
+public:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
+	UPTAbilitySystemComponent* AbilitySystemComponent;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
+	UPTAttributeSet* Attributes;
+
+protected:
+	virtual void InitializeAttributes();
+	virtual void GiveAbilities();
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_PlayerState() override;
+
+	/** Effect */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
+	TSubclassOf<class UGameplayEffect> DefaultAttributeEffect;
+
+	/** Ability */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
+	TArray<TSubclassOf<UPTGameplayAbility>> DefaultsAbilities;
 };
