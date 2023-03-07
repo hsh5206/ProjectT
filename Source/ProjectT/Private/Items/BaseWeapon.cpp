@@ -65,21 +65,6 @@ void ABaseWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 
 	if (BoxHit.GetActor())
 	{
-		if (BoxHit.GetActor()->ActorHasTag(FName("Enemy")))
-		{
-			UGameplayStatics::ApplyDamage(BoxHit.GetActor(),
-				TotalDamage,
-				GetInstigator()->GetController(),
-				this,
-				UDamageType::StaticClass()
-			);
-
-			/*IHitInterface* HitInterface = Cast<IHitInterface>(BoxHit.GetActor());
-			if (HitInterface)
-			{
-				HitInterface->Execute_GetHit(BoxHit.GetActor(), BoxHit.ImpactPoint);
-			}
-			IgnoreActors.AddUnique(BoxHit.GetActor());*/
-		}
+		//HitActorDelegate.Broadcast(BoxHit.GetActor());
 	}
 }

@@ -52,6 +52,8 @@ public:
 	UInputAction* InventoryAction;
 	UPROPERTY(EditDefaultsOnly)
 	UInputAction* Interaction;
+	UPROPERTY(EditDefaultsOnly)
+	UInputAction* BasicAttackAction;
 
 	/** Move */
 	bool bIsFirst = false;
@@ -66,6 +68,8 @@ public:
 	void OnInteractionPressed();
 	UFUNCTION(Server, Reliable)
 	void ServerDestryoItem(ABaseItem* Item);
+	/** BasicAttack */
+	void BasicAttack();
 
 	/** Inventory */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -120,4 +124,8 @@ protected:
 	/** Ability */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
 	TArray<TSubclassOf<UPTGameplayAbility>> DefaultsAbilities;
+
+	/** Event */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
+	FGameplayTag BasicAttackEventTag;
 };

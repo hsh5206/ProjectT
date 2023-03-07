@@ -18,6 +18,7 @@
 #include "AbilitySystem/PTAbilitySystemComponent.h"
 #include "AbilitySystem/PTAttributeSet.h"
 #include "AbilitySystem/PTGameplayAbility.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -47,7 +48,7 @@ ABaseCharacter::ABaseCharacter()
 
 	AbilitySystemComponent = CreateDefaultSubobject<UPTAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
-	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 	Attributes = CreateDefaultSubobject<UPTAttributeSet>(TEXT("AttributeSet"));
 }
 
@@ -131,14 +132,18 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		{
 			PlayerEnhancedInputComponent->BindAction(Interaction, ETriggerEvent::Started, this, &ABaseCharacter::OnInteractionPressed);
 		}
+		if (BasicAttackAction)
+		{
+			PlayerEnhancedInputComponent->BindAction(BasicAttackAction, ETriggerEvent::Started, this, &ABaseCharacter::BasicAttack);
+		}
 	}
 
 	/** GAS Binding */
-	if (AbilitySystemComponent && InputComponent)
+	/*if (AbilitySystemComponent && InputComponent)
 	{
 		const FGameplayAbilityInputBinds Binds("Confirm", "Cancle", "EPTAbilityInputID", static_cast<int32>(EPTAbilityInputID::Confirm), static_cast<int32>(EPTAbilityInputID::Cancel));
 		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, Binds);
-	}
+	}*/
 }
 
 void ABaseCharacter::PostInitializeComponents()
@@ -208,6 +213,16 @@ void ABaseCharacter::OnInteractionPressed()
 	}
 }
 
+void ABaseCharacter::BasicAttack()
+{
+	FGameplayEventData Payload;
+
+	Payload.Instigator = this;
+	Payload.EventTag = BasicAttackEventTag;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, BasicAttackEventTag, Payload);
+}
+
 void ABaseCharacter::ServerDestryoItem_Implementation(ABaseItem* Item)
 {
 	Item->Destroy();
@@ -257,9 +272,10 @@ void ABaseCharacter::GiveAbilities()
 	{
 		for (TSubclassOf<UPTGameplayAbility>& StartupAbility : DefaultsAbilities)
 		{
-			AbilitySystemComponent->GiveAbility(
+			AbilitySystemComponent->GiveAbility(FGameplayAbilitySpec(StartupAbility));
+			/*AbilitySystemComponent->GiveAbility(
 				FGameplayAbilitySpec(StartupAbility, 1, static_cast<int32>(StartupAbility.GetDefaultObject()->AbilityInputID), this)
-			);
+			);*/
 		}
 	}
 }
@@ -285,9 +301,9 @@ void ABaseCharacter::OnRep_PlayerState()
 	InitializeAttributes();
 
 	// Input¿¡ Ability Binding
-	if (AbilitySystemComponent && InputComponent)
+	/*if (AbilitySystemComponent && InputComponent)
 	{
 		const FGameplayAbilityInputBinds Binds("Confirm", "Cancle", "EPTAbilityInputID", static_cast<int32>(EPTAbilityInputID::Confirm), static_cast<int32>(EPTAbilityInputID::Cancel));
 		AbilitySystemComponent->BindAbilityActivationToInputComponent(InputComponent, Binds);
-	}
+	}*/
 }
