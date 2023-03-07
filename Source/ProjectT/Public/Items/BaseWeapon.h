@@ -29,6 +29,8 @@ public:
 	TArray<AActor*> IgnoreActors;
 
 	FORCEINLINE UBoxComponent* GetWeaponBox() const { return WeaponBox; }
+	void WeaponCollisionEanbled();
+	void WeaponCollisionDisabled();
 
 private:
 	UPROPERTY(VisibleAnywhere)

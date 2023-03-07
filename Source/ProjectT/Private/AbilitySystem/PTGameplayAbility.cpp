@@ -64,8 +64,6 @@ void UPTGameplayAbility::ActivateAbility(const FGameplayAbilitySpecHandle Handle
 
 void UPTGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled)
 {
-	UE_LOG(LogTemp, Warning, TEXT("End!"));
-
 	if (IsInstantiated())
 	{
 		/** RemoveOnEndEffetHandles Effects ÇØÁ¦ */
@@ -74,7 +72,6 @@ void UPTGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 			if (ActiveEffectHandle.IsValid())
 			{
 				ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(ActiveEffectHandle);
-				UE_LOG(LogTemp, Warning, TEXT("Removed!"));
 			}
 		}
 

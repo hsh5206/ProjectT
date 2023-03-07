@@ -7,6 +7,8 @@
 #include "Kismet/KismetSystemLibrary.h"
 #include "Kismet/GameplayStatics.h"
 
+#include "AbilitySystemBlueprintLibrary.h"
+
 #include "Characters/BaseCharacter.h"
 
 ABaseWeapon::ABaseWeapon()
@@ -65,6 +67,24 @@ void ABaseWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 
 	if (BoxHit.GetActor())
 	{
-		//HitActorDelegate.Broadcast(BoxHit.GetActor());
+		if (ABaseCharacter* Target = Cast<ABaseCharacter>(BoxHit.GetActor()))
+		{
+			FGameplayEventData Payload;
+
+			Payload.Instigator = this;
+			Payload.EventTag = Cast<ABaseCharacter>(GetOwner())->HitEventTag;
+
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Target, Payload.EventTag, Payload);
+		}
 	}
+}
+
+void ABaseWeapon::WeaponCollisionEanbled()
+{
+	WeaponBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void ABaseWeapon::WeaponCollisionDisabled()
+{
+	WeaponBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }

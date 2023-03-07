@@ -16,9 +16,13 @@ class PROJECTT_API UGA_BasicAttack : public UPTGameplayAbility
 
 public:
 	UGA_BasicAttack();
+	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combo Attack", Replicated)
+	FName SectionName;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
 	UGameplayEffect* AttackEffectToTarget;

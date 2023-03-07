@@ -70,6 +70,10 @@ public:
 	void ServerDestryoItem(ABaseItem* Item);
 	/** BasicAttack */
 	void BasicAttack();
+	UFUNCTION(BlueprintCallable)
+	void AttackStartComboState();
+	UFUNCTION(BlueprintCallable)
+	void AttackEndComboState();
 
 	/** Inventory */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -79,6 +83,23 @@ public:
 	/** Combat */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UCombatComponent* CombatComponent;
+	UFUNCTION(Server, Reliable)
+	void ServerSetActorRotationToMousePointer(FRotator Rotation);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastSetActorRotationToMousePointer(FRotator Rotation);
+	/** Combo Attack */
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = Attack, Meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_CanNextCombo)
+	bool CanNextCombo = true;
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = "true"))
+	int32 MaxCombo = 3;
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_CurrentCombo)
+	int32 CurrentCombo = 0;
+	UFUNCTION()
+	void OnRep_CanNextCombo();
+	UFUNCTION()
+	void OnRep_CurrentCombo();
+	UFUNCTION(Server, Reliable)
+	void ServerComboCombatStateChanged();
 
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_OverlappingItems)
 	TArray<ABaseItem*> OverlappingItems;
@@ -111,7 +132,7 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GAS")
 	UPTAttributeSet* Attributes;
 
-protected:
+public:
 	virtual void InitializeAttributes();
 	virtual void GiveAbilities();
 	virtual void PossessedBy(AController* NewController) override;
@@ -120,6 +141,13 @@ protected:
 	/** Effect */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
 	TSubclassOf<class UGameplayEffect> DefaultAttributeEffect;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
+	TSubclassOf<class UGameplayEffect> MoveEffect;
+	FActiveGameplayEffectHandle MoveEffectHandle;
+
+	/** Tags */
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
+	FGameplayTagContainer CantMoveTag;
 
 	/** Ability */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
@@ -128,4 +156,6 @@ protected:
 	/** Event */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
 	FGameplayTag BasicAttackEventTag;
+	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
+	FGameplayTag HitEventTag;
 };

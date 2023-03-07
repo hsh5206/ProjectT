@@ -23,6 +23,7 @@
 ABaseCharacter::ABaseCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
+	SetReplicates(true);
 
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(GetRootComponent());
@@ -87,18 +88,18 @@ void ABaseCharacter::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	/** Move */
-	if (bIsMovePressed)
+	if (bIsMovePressed && !AbilitySystemComponent->HasAnyMatchingGameplayTags(CantMoveTag))
 	{
 		FHitResult HitResult;
 		PlayerController->GetHitResultUnderCursorByChannel(ETraceTypeQuery::TraceTypeQuery1, true, HitResult);
 		if (HitResult.GetActor())
 		{
 
-			if (bIsFirst)
-			{
-				bIsFirst = false;
-				UAIBlueprintHelperLibrary::SimpleMoveToLocation(PlayerController, GetActorLocation());
-			}
+			//if (bIsFirst)
+			//{
+			//	bIsFirst = false;
+			//	UAIBlueprintHelperLibrary::SimpleMoveToLocation(PlayerController, GetActorLocation());
+			//}
 
 			FRotator Rotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), HitResult.Location);
 
@@ -134,7 +135,7 @@ void ABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCompo
 		}
 		if (BasicAttackAction)
 		{
-			PlayerEnhancedInputComponent->BindAction(BasicAttackAction, ETriggerEvent::Started, this, &ABaseCharacter::BasicAttack);
+			PlayerEnhancedInputComponent->BindAction(BasicAttackAction, ETriggerEvent::Triggered, this, &ABaseCharacter::BasicAttack);
 		}
 	}
 
@@ -161,24 +162,46 @@ void ABaseCharacter::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLi
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ABaseCharacter, OverlappingItems, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ABaseCharacter, CanNextCombo, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(ABaseCharacter, CurrentCombo, COND_OwnerOnly);
+
 }
 
 void ABaseCharacter::OnMoveAction()
 {
 	bIsMovePressed = true;
+
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	if (!MoveEffect.Get()) return;
+
+	if (AbilitySystemComponent)
+	{
+		FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(MoveEffect, 1, EffectContext);
+		if (SpecHandle.IsValid())
+		{
+			FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+			if (ActiveGEHandle.WasSuccessfullyApplied())
+			{
+				MoveEffectHandle = ActiveGEHandle;
+			}
+		}
+	}
 }
 
 void ABaseCharacter::OnMoveActionEnd()
 {
 	bIsMovePressed = false;
 
-	FHitResult HitResult;
+	/*FHitResult HitResult;
 	PlayerController->GetHitResultUnderCursorByChannel(ETraceTypeQuery::TraceTypeQuery1, true, HitResult);
 	if (HitResult.GetActor())
 	{
 		bIsFirst = true;
 		UAIBlueprintHelperLibrary::SimpleMoveToLocation(PlayerController, HitResult.Location);
-	}
+	}*/
+
+
+	AbilitySystemComponent->RemoveActiveGameplayEffect(MoveEffectHandle);
 }
 
 void ABaseCharacter::OnJumpAction()
@@ -198,6 +221,16 @@ void ABaseCharacter::OnInventoryPressed()
 	InventoryComponent->ToggleInventory();
 }
 
+void ABaseCharacter::MulticastSetActorRotationToMousePointer_Implementation(FRotator Rotation)
+{
+	SetActorRotation(FRotator(GetActorRotation().Pitch, Rotation.Yaw, GetActorRotation().Roll));
+}
+
+void ABaseCharacter::ServerSetActorRotationToMousePointer_Implementation(FRotator Rotation)
+{
+	MulticastSetActorRotationToMousePointer(Rotation);
+}
+
 void ABaseCharacter::OnInteractionPressed()
 {
 	if (OverlappingItems.Num() != 0)
@@ -215,18 +248,67 @@ void ABaseCharacter::OnInteractionPressed()
 
 void ABaseCharacter::BasicAttack()
 {
-	FGameplayEventData Payload;
+	if (CanNextCombo)
+	{
+		if (HasAuthority())
+		{
+			if (FMath::IsWithinInclusive<int32>(CurrentCombo, 0, MaxCombo - 1))
+			{
+				CurrentCombo = FMath::Clamp<int32>(CurrentCombo + 1, 1, MaxCombo);
+			}
+		}
+		else
+		{
+			ServerComboCombatStateChanged();
+		}
 
-	Payload.Instigator = this;
-	Payload.EventTag = BasicAttackEventTag;
+		CanNextCombo = false;
 
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, BasicAttackEventTag, Payload);
+		FGameplayEventData Payload;
+
+		Payload.Instigator = this;
+		Payload.EventTag = BasicAttackEventTag;
+
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, BasicAttackEventTag, Payload);
+	}
+}
+
+void ABaseCharacter::AttackStartComboState()
+{
+	CanNextCombo = true;
+}
+
+void ABaseCharacter::AttackEndComboState()
+{
+	CanNextCombo = false;
+	CurrentCombo = 0;
 }
 
 void ABaseCharacter::ServerDestryoItem_Implementation(ABaseItem* Item)
 {
 	Item->Destroy();
 }
+
+void ABaseCharacter::OnRep_CanNextCombo()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnRep CanNextCombo"));
+}
+
+void ABaseCharacter::OnRep_CurrentCombo()
+{
+	UE_LOG(LogTemp, Warning, TEXT("OnRep CanNextCombo"));
+
+}
+
+void ABaseCharacter::ServerComboCombatStateChanged_Implementation()
+{
+	if (FMath::IsWithinInclusive<int32>(CurrentCombo, 0, MaxCombo - 1))
+	{
+		CurrentCombo = FMath::Clamp<int32>(CurrentCombo + 1, 1, MaxCombo);
+	}
+	CanNextCombo = false;
+}
+
 
 void ABaseCharacter::OnRep_OverlappingItems()
 {
