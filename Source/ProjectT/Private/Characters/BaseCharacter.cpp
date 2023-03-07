@@ -49,7 +49,7 @@ ABaseCharacter::ABaseCharacter()
 
 	AbilitySystemComponent = CreateDefaultSubobject<UPTAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
-	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
 	Attributes = CreateDefaultSubobject<UPTAttributeSet>(TEXT("AttributeSet"));
 }
 

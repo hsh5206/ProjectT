@@ -71,11 +71,14 @@ void ABaseWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 		{
 			FGameplayEventData Payload;
 
-			Payload.Instigator = this;
+			Payload.Instigator = GetInstigator();
 			Payload.EventTag = Cast<ABaseCharacter>(GetOwner())->HitEventTag;
+			Payload.Target = Target;
+			Payload.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(Target);
 
-			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Target, Payload.EventTag, Payload);
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), Payload.EventTag, Payload);
 		}
+		ActorsToIgnore.AddUnique(BoxHit.GetActor());
 	}
 }
 

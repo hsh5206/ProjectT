@@ -29,7 +29,9 @@ public:
 	TArray<AActor*> IgnoreActors;
 
 	FORCEINLINE UBoxComponent* GetWeaponBox() const { return WeaponBox; }
+	UFUNCTION(BlueprintCallable)
 	void WeaponCollisionEanbled();
+	UFUNCTION(BlueprintCallable)
 	void WeaponCollisionDisabled();
 
 private:
