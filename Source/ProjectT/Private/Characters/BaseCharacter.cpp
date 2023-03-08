@@ -49,7 +49,7 @@ ABaseCharacter::ABaseCharacter()
 
 	AbilitySystemComponent = CreateDefaultSubobject<UPTAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
-	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Minimal);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 	Attributes = CreateDefaultSubobject<UPTAttributeSet>(TEXT("AttributeSet"));
 }
 
@@ -250,18 +250,23 @@ void ABaseCharacter::BasicAttack()
 {
 	if (CanNextCombo)
 	{
-		if (HasAuthority())
+		/*if (HasAuthority())
 		{
 			if (FMath::IsWithinInclusive<int32>(CurrentCombo, 0, MaxCombo - 1))
 			{
 				CurrentCombo = FMath::Clamp<int32>(CurrentCombo + 1, 1, MaxCombo);
 			}
+			CanNextCombo = false;
 		}
 		else
 		{
 			ServerComboCombatStateChanged();
-		}
+		}*/
 
+		if (FMath::IsWithinInclusive<int32>(CurrentCombo, 0, MaxCombo - 1))
+		{
+			CurrentCombo = FMath::Clamp<int32>(CurrentCombo + 1, 1, MaxCombo);
+		}
 		CanNextCombo = false;
 
 		FGameplayEventData Payload;
@@ -284,31 +289,31 @@ void ABaseCharacter::AttackEndComboState()
 	CurrentCombo = 0;
 }
 
+void ABaseCharacter::ServerPlayMontage_Implementation(UAnimMontage* Montage, FName SectionName)
+{
+	MulticastPlayMontage(Montage, SectionName);
+}
+
+void ABaseCharacter::MulticastPlayMontage_Implementation(UAnimMontage* Montage, FName SectionName)
+{
+	GetMesh()->GetAnimInstance()->Montage_Play(Montage);
+	GetMesh()->GetAnimInstance()->Montage_JumpToSection(SectionName, Montage);
+}
+
+void ABaseCharacter::ServerStopMontage_Implementation(UAnimMontage* Montage)
+{
+	MulticastStopMontage(Montage);
+}
+
+void ABaseCharacter::MulticastStopMontage_Implementation(UAnimMontage* Montage)
+{
+	GetMesh()->GetAnimInstance()->Montage_Stop(0.2f, Montage);
+}
+
 void ABaseCharacter::ServerDestryoItem_Implementation(ABaseItem* Item)
 {
 	Item->Destroy();
 }
-
-void ABaseCharacter::OnRep_CanNextCombo()
-{
-	UE_LOG(LogTemp, Warning, TEXT("OnRep CanNextCombo"));
-}
-
-void ABaseCharacter::OnRep_CurrentCombo()
-{
-	UE_LOG(LogTemp, Warning, TEXT("OnRep CanNextCombo"));
-
-}
-
-void ABaseCharacter::ServerComboCombatStateChanged_Implementation()
-{
-	if (FMath::IsWithinInclusive<int32>(CurrentCombo, 0, MaxCombo - 1))
-	{
-		CurrentCombo = FMath::Clamp<int32>(CurrentCombo + 1, 1, MaxCombo);
-	}
-	CanNextCombo = false;
-}
-
 
 void ABaseCharacter::OnRep_OverlappingItems()
 {

@@ -74,6 +74,14 @@ public:
 	void AttackStartComboState();
 	UFUNCTION(BlueprintCallable)
 	void AttackEndComboState();
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void ServerPlayMontage(UAnimMontage* Montage, FName SectionName);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastPlayMontage(UAnimMontage* Montage, FName SectionName);
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void ServerStopMontage(UAnimMontage* Montage);
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastStopMontage(UAnimMontage* Montage);
 
 	/** Inventory */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -88,18 +96,12 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastSetActorRotationToMousePointer(FRotator Rotation);
 	/** Combo Attack */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = Attack, Meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_CanNextCombo)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = Attack, Meta = (AllowPrivateAccess = "true"), Replicated)
 	bool CanNextCombo = true;
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = "true"))
 	int32 MaxCombo = 3;
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = "true"), ReplicatedUsing = OnRep_CurrentCombo)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = "true"), Replicated)
 	int32 CurrentCombo = 0;
-	UFUNCTION()
-	void OnRep_CanNextCombo();
-	UFUNCTION()
-	void OnRep_CurrentCombo();
-	UFUNCTION(Server, Reliable)
-	void ServerComboCombatStateChanged();
 
 	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_OverlappingItems)
 	TArray<ABaseItem*> OverlappingItems;
