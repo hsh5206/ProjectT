@@ -63,8 +63,6 @@ void ABaseWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 		true
 	);
 
-	int32 TotalDamage = Damage;
-
 	if (BoxHit.GetActor())
 	{
 		if (ABaseCharacter* Target = Cast<ABaseCharacter>(BoxHit.GetActor()))
@@ -78,7 +76,7 @@ void ABaseWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 
 			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), Payload.EventTag, Payload);
 		}
-		ActorsToIgnore.AddUnique(BoxHit.GetActor());
+		IgnoreActors.AddUnique(BoxHit.GetActor());
 	}
 }
 
@@ -90,4 +88,5 @@ void ABaseWeapon::WeaponCollisionEanbled()
 void ABaseWeapon::WeaponCollisionDisabled()
 {
 	WeaponBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	IgnoreActors.Empty();
 }

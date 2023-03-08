@@ -3,3 +3,7 @@
 
 #include "AbilitySystem/PTAbilitySystemComponent.h"
 
+void UPTAbilitySystemComponent::ReceiveDamage(UPTAbilitySystemComponent* SourceASC, float UnmitigateDamage, float MitigatedDamage)
+{
+	OnReceiveDamage.Broadcast(SourceASC, UnmitigateDamage, MitigatedDamage);
+}

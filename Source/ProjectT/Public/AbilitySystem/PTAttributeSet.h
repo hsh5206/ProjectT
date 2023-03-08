@@ -39,6 +39,26 @@ public:
 	FGameplayAttributeData MaxMana;
 	ATTRIBUTE_ACCESSORS(UPTAttributeSet, MaxMana)
 
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_Vigor)
+	FGameplayAttributeData Vigor;	// »ý¸í·Â
+	ATTRIBUTE_ACCESSORS(UPTAttributeSet, Vigor)
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_Power)
+	FGameplayAttributeData Power;	// Èû
+	ATTRIBUTE_ACCESSORS(UPTAttributeSet, Power)
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_Agility)
+	FGameplayAttributeData Agility;	// ¹ÎÃ¸
+	ATTRIBUTE_ACCESSORS(UPTAttributeSet, Agility)
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_Durability)
+	FGameplayAttributeData Durability;	// ³»±¸
+	ATTRIBUTE_ACCESSORS(UPTAttributeSet, Durability)
+
+	/** Meta Attributes */
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
+	FGameplayAttributeData Damage;
+	ATTRIBUTE_ACCESSORS(UPTAttributeSet, Damage)
 	
 
 	UFUNCTION()
@@ -49,5 +69,13 @@ public:
 	virtual void OnRep_Mana(const FGameplayAttributeData& OldMana);
 	UFUNCTION()
 	virtual void OnRep_MaxMana(const FGameplayAttributeData& OldMaxMana);
+	UFUNCTION()
+	virtual void OnRep_Vigor(const FGameplayAttributeData& OldVigor);
+	UFUNCTION()
+	virtual void OnRep_Power(const FGameplayAttributeData& OldPower);
+	UFUNCTION()
+	virtual void OnRep_Agility(const FGameplayAttributeData& OldAgility);
+	UFUNCTION()
+	virtual void OnRep_Durability(const FGameplayAttributeData& OldDurability);
 
 };
