@@ -14,6 +14,7 @@ ABaseCharacter::ABaseCharacter()
 {
 	PrimaryActorTick.bCanEverTick = false;
 	SetReplicates(true);
+	SetReplicateMovement(true);
 
 	AbilitySystemComponent = CreateDefaultSubobject<UPTAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 	AbilitySystemComponent->SetIsReplicated(true);
@@ -27,17 +28,22 @@ void ABaseCharacter::BeginPlay()
 
 	if (Attributes)
 	{
-		Attributes->DeathDelegate.AddDynamic(this, &ABaseCharacter::Death);
+		Attributes->DeathDelegate.AddDynamic(this, &ABaseCharacter::ServerDeath);
 	}
 }
 
-void ABaseCharacter::Death()
+void ABaseCharacter::ServerDeath_Implementation()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Death"));
-
-	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
-	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	ServerPlayMontage(DeathMontage);
+	MultiCastDeath();
+}
+
+void ABaseCharacter::MultiCastDeath_Implementation()
+{
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	bIsDead = true;
+	SetLifeSpan(5.f);
 }
 
 void ABaseCharacter::ServerPlayMontage_Implementation(UAnimMontage* Montage, FName SectionName)

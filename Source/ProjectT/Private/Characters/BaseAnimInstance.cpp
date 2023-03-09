@@ -22,4 +22,8 @@ void UBaseAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		Speed = Movement->Velocity.Size();
 		bIsInAir = Movement->IsFalling();
 	}
+	if (Character)
+	{
+		bIsDead = Character->bIsDead;
+	}
 }

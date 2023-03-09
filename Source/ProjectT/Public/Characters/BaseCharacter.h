@@ -20,6 +20,9 @@ class PROJECTT_API ABaseCharacter : public ACharacter, public IAbilitySystemInte
 public:
 	ABaseCharacter();
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	bool bIsDead = false;
+
 protected:
 	virtual void BeginPlay() override;
 
@@ -32,10 +35,13 @@ protected:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastStopMontage(UAnimMontage* Montage);
 	/** Death */
-	UFUNCTION()
-	void Death();
+	UFUNCTION(Server, Reliable)
+	void ServerDeath();
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiCastDeath();
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* DeathMontage;
+	
 
 /**
 *
