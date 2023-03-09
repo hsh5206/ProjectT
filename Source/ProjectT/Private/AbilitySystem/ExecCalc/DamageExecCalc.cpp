@@ -3,7 +3,7 @@
 
 #include "AbilitySystem/ExecCalc/DamageExecCalc.h"
 
-#include "Characters/BaseCharacter.h"
+#include "Characters/BaseHero.h"
 #include "Components/InventoryComponent.h"
 #include "Items/BaseWeapon.h"
 
@@ -53,7 +53,7 @@ void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutio
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(Attributes.DamageDef, EvaluationParameters, Damage);
 
 	// Set Base Damage
-	if (ABaseCharacter* SourceCharacter = Cast<ABaseCharacter>(Source))
+	if (ABaseHero* SourceCharacter = Cast<ABaseHero>(Source))
 	{
 		if (ABaseWeapon* Weapon = SourceCharacter->InventoryComponent->EquippingWeapon)
 		{

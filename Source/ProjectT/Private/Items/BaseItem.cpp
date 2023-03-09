@@ -4,7 +4,7 @@
 #include "Items/BaseItem.h"
 
 #include "Components/SphereComponent.h"
-#include "Characters/BaseCharacter.h"
+#include "Characters/BaseHero.h"
 #include "Components/WidgetComponent.h"
 
 ABaseItem::ABaseItem()
@@ -46,7 +46,7 @@ void ABaseItem::Tick(float DeltaTime)
 
 void ABaseItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (ABaseCharacter* Character = Cast<ABaseCharacter>(OtherActor))
+	if (ABaseHero* Character = Cast<ABaseHero>(OtherActor))
 	{
 		if (Character->IsLocallyControlled())
 		{
@@ -61,7 +61,7 @@ void ABaseItem::OnSphereOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 
 void ABaseItem::OnSphereOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-	if (ABaseCharacter* Character = Cast<ABaseCharacter>(OtherActor))
+	if (ABaseHero* Character = Cast<ABaseHero>(OtherActor))
 	{
 		Character->OverlappingItems.Remove(this);
 		if (Character->IsLocallyControlled())

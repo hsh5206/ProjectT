@@ -6,7 +6,7 @@
 #include "Net/UnrealNetwork.h"
 
 #include "AbilitySystem/PTAbilitySystemComponent.h"
-#include "Characters/BaseCharacter.h"
+#include "Characters/BaseHero.h"
 
 UGA_BasicAttack::UGA_BasicAttack()
 {
@@ -30,10 +30,10 @@ void UGA_BasicAttack::ActivateAbility(const FGameplayAbilitySpecHandle Handle, c
 
 		// ActorInfo->AvatarActor->SetActorRotation(FMath::RInterpTo(ActorInfo->AvatarActor->GetActorRotation(), FRotator(ActorInfo->AvatarActor->GetActorRotation().Pitch, Rotation.Yaw, ActorInfo->AvatarActor->GetActorRotation().Roll), GetWorld()->DeltaTimeSeconds, 15.f));
 
-		Cast<ABaseCharacter>(ActorInfo->AvatarActor)->ServerSetActorRotationToMousePointer(Rotation);
+		Cast<ABaseHero>(ActorInfo->AvatarActor)->ServerSetActorRotationToMousePointer(Rotation);
 	}
 
-	SectionName = *FString::Printf(TEXT("Attack%d"), Cast<ABaseCharacter>(ActorInfo->AvatarActor)->CurrentCombo);
+	SectionName = *FString::Printf(TEXT("Attack%d"), Cast<ABaseHero>(ActorInfo->AvatarActor)->CurrentCombo);
 
 }
 

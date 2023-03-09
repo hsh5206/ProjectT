@@ -8,10 +8,6 @@
 #include "GameplayEffectTypes.h"
 #include "BaseCharacter.generated.h"
 
-class UInputMappingContext;
-class UInputAction;
-class ABaseItem;
-
 class UPTAbilitySystemComponent;
 class UPTAttributeSet;
 class UPTGameplayAbility;
@@ -23,57 +19,10 @@ class PROJECTT_API ABaseCharacter : public ACharacter, public IAbilitySystemInte
 
 public:
 	ABaseCharacter();
-	virtual void Tick(float DeltaTime) override;
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
-	virtual void PostInitializeComponents() override;
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void PawnClientRestart() override;
 
-	UPROPERTY(EditDefaultsOnly)
-	class UCameraComponent* Camera;
-	UPROPERTY(EditDefaultsOnly)
-	class USpringArmComponent* SpringArm;
-
-	UPROPERTY()
-	class APlayerController* PlayerController;
-
-public:	
-	/** Enhanced Input */
-	UPROPERTY(EditDefaultsOnly)
-	class UInputMappingContext* DefaultMappingContext;
-	UPROPERTY(EditDefaultsOnly)
-	UInputAction* MoveInputAction;
-	UPROPERTY(EditDefaultsOnly)
-	UInputAction* JumpInputAction;
-	UPROPERTY(EditDefaultsOnly)
-	UInputAction* InventoryAction;
-	UPROPERTY(EditDefaultsOnly)
-	UInputAction* Interaction;
-	UPROPERTY(EditDefaultsOnly)
-	UInputAction* BasicAttackAction;
-
-	/** Move */
-	bool bIsFirst = false;
-	bool bIsMovePressed = false;
-	void OnMoveAction();
-	void OnMoveActionEnd();
-	/** Jump */
-	void OnJumpAction();
-	void OnJumpActionEnd();
-	virtual void Landed(const FHitResult& Hit) override;
-	/** Interaction */
-	void OnInteractionPressed();
-	UFUNCTION(Server, Reliable)
-	void ServerDestryoItem(ABaseItem* Item);
-	/** BasicAttack */
-	void BasicAttack();
-	UFUNCTION(BlueprintCallable)
-	void AttackStartComboState();
-	UFUNCTION(BlueprintCallable)
-	void AttackEndComboState();
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void ServerPlayMontage(UAnimMontage* Montage, FName SectionName = FName("Default"));
 	UFUNCTION(NetMulticast, Reliable)
@@ -87,43 +36,6 @@ public:
 	void Death();
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* DeathMontage;
-
-	/** Inventory */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UInventoryComponent* InventoryComponent;
-	void OnInventoryPressed();
-
-	/** Combat */
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	class UCombatComponent* CombatComponent;
-	UFUNCTION(Server, Reliable)
-	void ServerSetActorRotationToMousePointer(FRotator Rotation);
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastSetActorRotationToMousePointer(FRotator Rotation);
-	/** Combo Attack */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = Attack, Meta = (AllowPrivateAccess = "true"), Replicated)
-	bool CanNextCombo = true;
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = "true"))
-	int32 MaxCombo = 3;
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = "true"), Replicated)
-	int32 CurrentCombo = 0;
-
-	UPROPERTY(VisibleAnywhere, ReplicatedUsing = OnRep_OverlappingItems)
-	TArray<ABaseItem*> OverlappingItems;
-	UFUNCTION()
-	void OnRep_OverlappingItems();
-
-	UPROPERTY(EditDefaultsOnly)
-	TSubclassOf<UUserWidget> PickupWidgetClass;
-	UPROPERTY()
-	UUserWidget* PickupWidget;
-
-	UPROPERTY(EditDefaultsOnly, Category = Rune)
-	class UStaticMeshComponent* Rune1;
-	UPROPERTY(EditDefaultsOnly, Category = Rune)
-	class UStaticMeshComponent* Rune2;
-	UPROPERTY(EditDefaultsOnly, Category = Rune)
-	class UStaticMeshComponent* Rune3;
 
 /**
 *

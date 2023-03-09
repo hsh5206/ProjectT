@@ -8,7 +8,7 @@
 
 #include "Items/BaseItem.h"
 #include "Widgets/InventoryWidget.h"
-#include "Characters/BaseCharacter.h"
+#include "Characters/BaseHero.h"
 #include "Items/BaseWeapon.h"
 #include "Items/BaseRune.h"
 
@@ -233,15 +233,15 @@ void UInventoryComponent::Unquip(TSubclassOf<ABaseItem> Item)
 
 			if (i == 0)
 			{
-				Cast<ABaseCharacter>(GetOwner())->Rune1->SetStaticMesh(nullptr);
+				Cast<ABaseHero>(GetOwner())->Rune1->SetStaticMesh(nullptr);
 			}
 			else if (i == 1)
 			{
-				Cast<ABaseCharacter>(GetOwner())->Rune2->SetStaticMesh(nullptr);
+				Cast<ABaseHero>(GetOwner())->Rune2->SetStaticMesh(nullptr);
 			}
 			else if (i == 2)
 			{
-				Cast<ABaseCharacter>(GetOwner())->Rune3->SetStaticMesh(nullptr);
+				Cast<ABaseHero>(GetOwner())->Rune3->SetStaticMesh(nullptr);
 			}
 
 			SetRunesLocation();
@@ -282,15 +282,15 @@ void UInventoryComponent::ServerUnequip_Implementation(TSubclassOf<ABaseItem> It
 
 		if (i == 0)
 		{
-			Cast<ABaseCharacter>(GetOwner())->Rune1->SetStaticMesh(nullptr);
+			Cast<ABaseHero>(GetOwner())->Rune1->SetStaticMesh(nullptr);
 		}
 		else if (i == 1)
 		{
-			Cast<ABaseCharacter>(GetOwner())->Rune2->SetStaticMesh(nullptr);
+			Cast<ABaseHero>(GetOwner())->Rune2->SetStaticMesh(nullptr);
 		}
 		else if (i == 2)
 		{
-			Cast<ABaseCharacter>(GetOwner())->Rune3->SetStaticMesh(nullptr);
+			Cast<ABaseHero>(GetOwner())->Rune3->SetStaticMesh(nullptr);
 		}
 
 		SetRunesLocation();
@@ -301,21 +301,21 @@ void UInventoryComponent::SetRunesLocation()
 {
 	if (GetOwner()->HasAuthority())
 	{
-		Cast<ABaseCharacter>(GetOwner())->Rune1->SetStaticMesh(nullptr);
-		Cast<ABaseCharacter>(GetOwner())->Rune2->SetStaticMesh(nullptr);
-		Cast<ABaseCharacter>(GetOwner())->Rune3->SetStaticMesh(nullptr);
+		Cast<ABaseHero>(GetOwner())->Rune1->SetStaticMesh(nullptr);
+		Cast<ABaseHero>(GetOwner())->Rune2->SetStaticMesh(nullptr);
+		Cast<ABaseHero>(GetOwner())->Rune3->SetStaticMesh(nullptr);
 
 		if (EquippingRunes.Num() >= 1)
 		{
-			Cast<ABaseCharacter>(GetOwner())->Rune1->SetStaticMesh(EquippingRunes[0].GetDefaultObject()->ItemData.ItemMesh);
+			Cast<ABaseHero>(GetOwner())->Rune1->SetStaticMesh(EquippingRunes[0].GetDefaultObject()->ItemData.ItemMesh);
 		}
 		if (EquippingRunes.Num() >= 2)
 		{
-			Cast<ABaseCharacter>(GetOwner())->Rune2->SetStaticMesh(EquippingRunes[1].GetDefaultObject()->ItemData.ItemMesh);
+			Cast<ABaseHero>(GetOwner())->Rune2->SetStaticMesh(EquippingRunes[1].GetDefaultObject()->ItemData.ItemMesh);
 		}
 		if (EquippingRunes.Num() >= 3)
 		{
-			Cast<ABaseCharacter>(GetOwner())->Rune3->SetStaticMesh(EquippingRunes[2].GetDefaultObject()->ItemData.ItemMesh);
+			Cast<ABaseHero>(GetOwner())->Rune3->SetStaticMesh(EquippingRunes[2].GetDefaultObject()->ItemData.ItemMesh);
 		}
 	}
 	else
@@ -326,20 +326,20 @@ void UInventoryComponent::SetRunesLocation()
 
 void UInventoryComponent::ServerSetRunesLocation_Implementation()
 {
-	Cast<ABaseCharacter>(GetOwner())->Rune1->SetStaticMesh(nullptr);
-	Cast<ABaseCharacter>(GetOwner())->Rune2->SetStaticMesh(nullptr);
-	Cast<ABaseCharacter>(GetOwner())->Rune3->SetStaticMesh(nullptr);
+	Cast<ABaseHero>(GetOwner())->Rune1->SetStaticMesh(nullptr);
+	Cast<ABaseHero>(GetOwner())->Rune2->SetStaticMesh(nullptr);
+	Cast<ABaseHero>(GetOwner())->Rune3->SetStaticMesh(nullptr);
 
 	if (EquippingRunes.Num() >= 1)
 	{
-		Cast<ABaseCharacter>(GetOwner())->Rune1->SetStaticMesh(EquippingRunes[0].GetDefaultObject()->ItemData.ItemMesh);
+		Cast<ABaseHero>(GetOwner())->Rune1->SetStaticMesh(EquippingRunes[0].GetDefaultObject()->ItemData.ItemMesh);
 	}
 	if (EquippingRunes.Num() >= 2)
 	{
-		Cast<ABaseCharacter>(GetOwner())->Rune2->SetStaticMesh(EquippingRunes[1].GetDefaultObject()->ItemData.ItemMesh);
+		Cast<ABaseHero>(GetOwner())->Rune2->SetStaticMesh(EquippingRunes[1].GetDefaultObject()->ItemData.ItemMesh);
 	}
 	if (EquippingRunes.Num() >= 3)
 	{
-		Cast<ABaseCharacter>(GetOwner())->Rune3->SetStaticMesh(EquippingRunes[2].GetDefaultObject()->ItemData.ItemMesh);
+		Cast<ABaseHero>(GetOwner())->Rune3->SetStaticMesh(EquippingRunes[2].GetDefaultObject()->ItemData.ItemMesh);
 	}
 }

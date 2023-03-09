@@ -17,14 +17,14 @@ class PROJECTT_API UInventoryComponent : public UActorComponent
 public:	
 	UInventoryComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	friend class ABaseCharacter;
+	friend class ABaseHero;
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:
 	virtual void BeginPlay() override;
 
 private:	
-	class ABaseCharacter* Character;
+	class ABaseHero* Character;
 
 public:
 	UPROPERTY()
