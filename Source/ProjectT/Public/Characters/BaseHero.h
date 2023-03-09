@@ -68,6 +68,10 @@ public:
 	void AttackStartComboState();
 	UFUNCTION(BlueprintCallable)
 	void AttackEndComboState();
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void ServerAttackStartComboState();
+	UFUNCTION(Server, Reliable, BlueprintCallable)
+	void ServerAttackEndComboState();
 
 	/** Combat */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -77,12 +81,14 @@ public:
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastSetActorRotationToMousePointer(FRotator Rotation);
 	/** Combo Attack */
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = Attack, Meta = (AllowPrivateAccess = "true"), Replicated)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadWrite, Category = Attack, Meta = (AllowPrivateAccess = "true"))
 	bool CanNextCombo = true;
 	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = "true"))
 	int32 MaxCombo = 3;
-	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = "true"), Replicated)
+	UPROPERTY(VisibleInstanceOnly, BlueprintReadOnly, Category = Attack, Meta = (AllowPrivateAccess = "true"))
 	int32 CurrentCombo = 0;
+	UFUNCTION(Server, Reliable)
+	void ServerComboCombatStateChanged();
 
 	/** Inventory */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

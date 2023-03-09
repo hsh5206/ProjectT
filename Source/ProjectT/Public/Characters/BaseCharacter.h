@@ -26,6 +26,7 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+public:
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void ServerPlayMontage(UAnimMontage* Montage, FName SectionName = FName("Default"));
 	UFUNCTION(NetMulticast, Reliable)
@@ -38,7 +39,7 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerDeath();
 	UFUNCTION(NetMulticast, Reliable)
-	void MultiCastDeath();
+	void MulticastDeath();
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* DeathMontage;
 	

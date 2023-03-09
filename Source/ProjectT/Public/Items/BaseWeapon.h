@@ -34,6 +34,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void WeaponCollisionDisabled();
 
+	UPROPERTY(EditDefaultsOnly, Category = "GAS | Effects")
+	TSubclassOf<class UGameplayEffect> AttackEffectToTarget;
+
 private:
 	UPROPERTY(VisibleAnywhere)
 	UBoxComponent* WeaponBox;

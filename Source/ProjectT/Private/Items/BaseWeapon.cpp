@@ -10,6 +10,7 @@
 #include "AbilitySystemBlueprintLibrary.h"
 
 #include "Characters/BaseCharacter.h"
+#include "AbilitySystem/PTAbilitySystemComponent.h"
 
 ABaseWeapon::ABaseWeapon()
 {
@@ -67,14 +68,25 @@ void ABaseWeapon::OnBoxOverlap(UPrimitiveComponent* OverlappedComponent, AActor*
 	{
 		if (ABaseCharacter* Target = Cast<ABaseCharacter>(BoxHit.GetActor()))
 		{
-			FGameplayEventData Payload;
+			/*FGameplayEventData Payload;
 
 			Payload.Instigator = GetInstigator();
 			Payload.EventTag = Cast<ABaseCharacter>(GetOwner())->HitEventTag;
 			Payload.Target = Target;
 			Payload.TargetData = UAbilitySystemBlueprintLibrary::AbilityTargetDataFromActor(Target);
 
-			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), Payload.EventTag, Payload);
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(GetOwner(), Payload.EventTag, Payload);*/
+
+			ABaseCharacter* OwnerCharacter = Cast<ABaseCharacter>(GetOwner());
+
+			FGameplayEffectContextHandle EffectContext = OwnerCharacter->AbilitySystemComponent->MakeEffectContext();
+			EffectContext.AddHitResult(BoxHit);
+			FGameplayEffectSpecHandle SpecHandle = OwnerCharacter->AbilitySystemComponent->MakeOutgoingSpec(AttackEffectToTarget, 1, EffectContext);
+			if (SpecHandle.IsValid())
+			{
+				UPTAbilitySystemComponent* TargetASC = Target->AbilitySystemComponent;
+				FActiveGameplayEffectHandle ActiveGEHandle = OwnerCharacter->AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+			}
 		}
 		IgnoreActors.AddUnique(BoxHit.GetActor());
 	}

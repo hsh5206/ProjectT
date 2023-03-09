@@ -35,10 +35,10 @@ void ABaseCharacter::BeginPlay()
 void ABaseCharacter::ServerDeath_Implementation()
 {
 	ServerPlayMontage(DeathMontage);
-	MultiCastDeath();
+	MulticastDeath();
 }
 
-void ABaseCharacter::MultiCastDeath_Implementation()
+void ABaseCharacter::MulticastDeath_Implementation()
 {
 	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);

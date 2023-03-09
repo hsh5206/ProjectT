@@ -109,8 +109,6 @@ void ABaseHero::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetim
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME_CONDITION(ABaseHero, OverlappingItems, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(ABaseHero, CanNextCombo, COND_OwnerOnly);
-	DOREPLIFETIME_CONDITION(ABaseHero, CurrentCombo, COND_OwnerOnly);
 }
 
 void ABaseHero::PostInitializeComponents()
@@ -256,6 +254,11 @@ void ABaseHero::BasicAttack()
 		}
 		CanNextCombo = false;
 
+		if (!HasAuthority())
+		{
+			ServerComboCombatStateChanged();
+		}
+
 		FGameplayEventData Payload;
 
 		Payload.Instigator = this;
@@ -271,6 +274,26 @@ void ABaseHero::AttackStartComboState()
 }
 
 void ABaseHero::AttackEndComboState()
+{
+	CanNextCombo = false;
+	CurrentCombo = 0;
+}
+
+void ABaseHero::ServerComboCombatStateChanged_Implementation()
+{
+	if (FMath::IsWithinInclusive<int32>(CurrentCombo, 0, MaxCombo - 1))
+	{
+		CurrentCombo = FMath::Clamp<int32>(CurrentCombo + 1, 1, MaxCombo);
+	}
+	CanNextCombo = false;
+}
+
+void ABaseHero::ServerAttackStartComboState_Implementation()
+{
+	CanNextCombo = true;
+}
+
+void ABaseHero::ServerAttackEndComboState_Implementation()
 {
 	CanNextCombo = false;
 	CurrentCombo = 0;

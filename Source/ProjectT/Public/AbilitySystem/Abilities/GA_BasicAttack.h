@@ -16,17 +16,28 @@ class PROJECTT_API UGA_BasicAttack : public UPTGameplayAbility
 
 public:
 	UGA_BasicAttack();
-	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 	virtual void ActivateAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, const FGameplayEventData* TriggerEventData) override;
 	virtual void EndAbility(const FGameplayAbilitySpecHandle Handle, const FGameplayAbilityActorInfo* ActorInfo, const FGameplayAbilityActivationInfo ActivationInfo, bool bReplicateEndAbility, bool bWasCancelled);
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combo Attack", Replicated)
+	class ABaseHero* Character;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combo Attack")
 	FName SectionName;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Effects")
-	UGameplayEffect* AttackEffectToTarget;
+	TSubclassOf<UGameplayEffect> AttackEffectToTarget;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Animation")
 	UAnimMontage* BasicAttackMontage;
+
+protected:
+	UFUNCTION()
+	void OnCancelled(FGameplayTag EventTag, FGameplayEventData EventData);
+
+	UFUNCTION()
+	void OnCompleted(FGameplayTag EventTag, FGameplayEventData EventData);
+
+	UFUNCTION()
+	void EventReceived(FGameplayTag EventTag, FGameplayEventData EventData);
 };
