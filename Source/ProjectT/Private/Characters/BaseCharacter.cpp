@@ -11,6 +11,7 @@
 #include "InputTriggers.h"
 #include "Net/UnrealNetwork.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/CapsuleComponent.h"
 
 #include "Components/InventoryComponent.h"
 #include "Components/CombatComponent.h"
@@ -66,6 +67,11 @@ void ABaseCharacter::BeginPlay()
 	if (PickupWidgetClass)
 	{
 		PickupWidget = CreateWidget(GetWorld(), PickupWidgetClass);
+	}
+
+	if (Attributes)
+	{
+		Attributes->DeathDelegate.AddDynamic(this, &ABaseCharacter::Death);
 	}
 }
 
@@ -214,6 +220,15 @@ void ABaseCharacter::OnJumpActionEnd()
 
 void ABaseCharacter::Landed(const FHitResult& Hit)
 {
+}
+
+void ABaseCharacter::Death()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Death"));
+
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::PhysicsOnly);
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	ServerPlayMontage(DeathMontage);
 }
 
 void ABaseCharacter::OnInventoryPressed()

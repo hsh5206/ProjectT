@@ -3,6 +3,7 @@
 
 #include "AbilitySystem/PTAttributeSet.h"
 #include "Net/UnrealNetwork.h"
+#include "GameplayEffectExtension.h"
 
 UPTAttributeSet::UPTAttributeSet()
 {
@@ -18,6 +19,33 @@ void UPTAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(UPTAttributeSet, Power, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UPTAttributeSet, Agility, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UPTAttributeSet, Durability, COND_None, REPNOTIFY_Always);
+}
+
+void UPTAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
+{
+	Super::PreAttributeChange(Attribute, NewValue);
+
+	if (Attribute == GetHealthAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxHealth());
+	}
+	else if (Attribute == GetManaAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxMana());
+	}
+}
+
+void UPTAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data)
+{
+	Super::PostGameplayEffectExecute(Data);
+
+	if (Data.EvaluatedData.Attribute == GetHealthAttribute())
+	{
+		if (FMath::IsNearlyEqual(GetHealth(), 0.f))
+		{
+			DeathDelegate.Broadcast();
+		}
+	}
 }
 
 void UPTAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)

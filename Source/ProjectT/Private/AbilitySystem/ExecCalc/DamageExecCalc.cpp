@@ -87,6 +87,6 @@ void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutio
 	if (UPTAbilitySystemComponent* TargetPTASC = Cast<UPTAbilitySystemComponent>(TargetASC))
 	{
 		UPTAbilitySystemComponent* SourcePTASC = Cast<UPTAbilitySystemComponent>(SourceASC);
-		TargetPTASC->ReceiveDamage(SourcePTASC, Damage, MitigatedDamage);
+		TargetPTASC->ReceiveDamage(SourcePTASC, MitigatedDamage);
 	}
 }

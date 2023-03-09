@@ -75,13 +75,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AttackEndComboState();
 	UFUNCTION(Server, Reliable, BlueprintCallable)
-	void ServerPlayMontage(UAnimMontage* Montage, FName SectionName);
+	void ServerPlayMontage(UAnimMontage* Montage, FName SectionName = FName("Default"));
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastPlayMontage(UAnimMontage* Montage, FName SectionName);
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void ServerStopMontage(UAnimMontage* Montage);
 	UFUNCTION(NetMulticast, Reliable)
 	void MulticastStopMontage(UAnimMontage* Montage);
+	/** Death */
+	UFUNCTION()
+	void Death();
+	UPROPERTY(EditDefaultsOnly)
+	UAnimMontage* DeathMontage;
 
 	/** Inventory */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

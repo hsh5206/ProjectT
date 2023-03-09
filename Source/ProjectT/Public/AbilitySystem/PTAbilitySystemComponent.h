@@ -6,7 +6,7 @@
 #include "AbilitySystemComponent.h"
 #include "PTAbilitySystemComponent.generated.h"
 
- DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FReceivedDamageDelegate, UPTAbilitySystemComponent*, SourceASC, float, UnmitigateDamage, float, MitigatedDamage);
+ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FReceivedDamageDelegate, UPTAbilitySystemComponent*, SourceASC, float, MitigatedDamage);
 
 UCLASS()
 class PROJECTT_API UPTAbilitySystemComponent : public UAbilitySystemComponent
@@ -15,5 +15,5 @@ class PROJECTT_API UPTAbilitySystemComponent : public UAbilitySystemComponent
 public:
 	FReceivedDamageDelegate OnReceiveDamage;
 
-	virtual void ReceiveDamage(UPTAbilitySystemComponent* SourceASC, float UnmitigateDamage, float MitigatedDamage);
+	virtual void ReceiveDamage(UPTAbilitySystemComponent* SourceASC, float MitigatedDamage);
 };
