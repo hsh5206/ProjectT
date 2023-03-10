@@ -47,6 +47,14 @@ protected:
 	UInputAction* Interaction;
 	UPROPERTY(EditDefaultsOnly)
 	UInputAction* BasicAttackAction;
+	UPROPERTY(EditDefaultsOnly)
+	UInputAction* Skill_1_Action;
+	UPROPERTY(EditDefaultsOnly)
+	UInputAction* Skill_2_Action;
+	UPROPERTY(EditDefaultsOnly)
+	UInputAction* Skill_3_Action;
+	UPROPERTY(EditDefaultsOnly)
+	UInputAction* Skill_4_Action;
 
 public:
 	/** Move */
@@ -72,6 +80,25 @@ public:
 	void ServerAttackStartComboState();
 	UFUNCTION(Server, Reliable, BlueprintCallable)
 	void ServerAttackEndComboState();
+	/** Skill */
+	UFUNCTION()
+	void Skill_1();
+	UFUNCTION(BlueprintCallable)
+	void Skill_1_DamageEvent();
+	UFUNCTION()
+	void Skill_2();
+	UFUNCTION(BlueprintCallable)
+	void Skill_2_DamageEvent();
+	UFUNCTION()
+	void Skill_3();
+	UFUNCTION(BlueprintCallable)
+	void Skill_3_DamageEvent();
+	UPROPERTY(EditDefaultsOnly, Category = "Skills")
+	TSubclassOf<AActor> Skill3Actor;
+	UFUNCTION()
+	void Skill_4();
+	UFUNCTION(BlueprintCallable)
+	void Skill_4_DamageEvent();
 
 	/** Combat */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -110,4 +137,8 @@ public:
 	class UStaticMeshComponent* Rune2;
 	UPROPERTY(EditDefaultsOnly, Category = Rune)
 	class UStaticMeshComponent* Rune3;
+
+	/** Effect */
+	UPROPERTY(EditDefaultsOnly, Category="GAS")
+	TSubclassOf<UGameplayEffect> SKill1Effect;
 };

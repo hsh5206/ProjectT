@@ -73,6 +73,7 @@ void UPTGameplayAbility::EndAbility(const FGameplayAbilitySpecHandle Handle, con
 			{
 				ActorInfo->AbilitySystemComponent->RemoveActiveGameplayEffect(ActiveEffectHandle);
 			}
+
 		}
 
 		RemoveOnEndEffetHandles.Empty();

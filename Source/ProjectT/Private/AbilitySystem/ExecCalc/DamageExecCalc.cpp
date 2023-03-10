@@ -58,30 +58,27 @@ void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutio
 		if (ABaseWeapon* Weapon = SourceCharacter->InventoryComponent->EquippingWeapon)
 		{
 			Damage = Weapon->Damage;
-			UE_LOG(LogTemp, Warning, TEXT("WeaponDamage : %f"), Damage);
 		}
 	}
 	Damage = (Damage + Power * 2.f) + (1.f + Agility * 0.1f);
-	UE_LOG(LogTemp, Warning, TEXT("PureDamage : %f"), Damage);
 
 	// Damage Calcuate
 	float MitigatedDamage = Damage - Durability * 2.f;
-	UE_LOG(LogTemp, Warning, TEXT("TotalDamage : %f"), MitigatedDamage);
 
+	float SkillDamageMultiplier = Spec.GetSetByCallerMagnitude(FName("SkillDamageMultiplier"), false, 1.f);
+
+	MitigatedDamage *= SkillDamageMultiplier;
+	UE_LOG(LogTemp, Warning, TEXT("Final Damage : %f"), MitigatedDamage);
 
 	// Set the Target's damage meta attribute
-	//if (MitigatedDamage > 1.f)
-	//{
-	//	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(Attributes.HealthProperty, EGameplayModOp::Additive, -MitigatedDamage));
-	//}
-	//else
-	//{
-	//	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(Attributes.HealthProperty, EGameplayModOp::Additive, -1.f));
-	//}
-
-	OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(Attributes.HealthProperty, EGameplayModOp::Additive, -MitigatedDamage));
-
-
+	if (MitigatedDamage > 1.f)
+	{
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(Attributes.HealthProperty, EGameplayModOp::Additive, -MitigatedDamage));
+	}
+	else
+	{
+		OutExecutionOutput.AddOutputModifier(FGameplayModifierEvaluatedData(Attributes.HealthProperty, EGameplayModOp::Additive, -1.f));
+	}
 
 	// Broadcast damages to Target ASC
 	if (UPTAbilitySystemComponent* TargetPTASC = Cast<UPTAbilitySystemComponent>(TargetASC))

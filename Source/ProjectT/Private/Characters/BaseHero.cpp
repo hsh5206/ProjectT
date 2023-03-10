@@ -7,14 +7,17 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/KismetSystemLibrary.h"
 #include "Blueprint/UserWidget.h"
 #include "Net/UnrealNetwork.h"
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "InputTriggers.h"
+#include "Components/CapsuleComponent.h"
 
 #include "Components/InventoryComponent.h"
 #include "Components/CombatComponent.h"
 #include "Items/BaseItem.h"
+#include "Characters/Skills/Skill3_SpawnActor.h"
 
 #include "AbilitySystem/PTAbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
@@ -101,6 +104,22 @@ void ABaseHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		{
 			PlayerEnhancedInputComponent->BindAction(BasicAttackAction, ETriggerEvent::Triggered, this, &ABaseHero::BasicAttack);
 		}
+		if (Skill_1_Action)
+		{
+			PlayerEnhancedInputComponent->BindAction(Skill_1_Action, ETriggerEvent::Started, this, &ABaseHero::Skill_1);
+		}
+		if (Skill_2_Action)
+		{
+			PlayerEnhancedInputComponent->BindAction(Skill_2_Action, ETriggerEvent::Started, this, &ABaseHero::Skill_2);
+		}
+		if (Skill_3_Action)
+		{
+			PlayerEnhancedInputComponent->BindAction(Skill_3_Action, ETriggerEvent::Started, this, &ABaseHero::Skill_3);
+		}
+		if (Skill_4_Action)
+		{
+			PlayerEnhancedInputComponent->BindAction(Skill_4_Action, ETriggerEvent::Started, this, &ABaseHero::Skill_4);
+		}
 	}
 }
 
@@ -120,7 +139,6 @@ void ABaseHero::PostInitializeComponents()
 		InventoryComponent->Character = this;
 	}
 }
-
 
 void ABaseHero::BeginPlay()
 {
@@ -297,6 +315,194 @@ void ABaseHero::ServerAttackEndComboState_Implementation()
 {
 	CanNextCombo = false;
 	CurrentCombo = 0;
+}
+
+void ABaseHero::Skill_1()
+{
+	UE_LOG(LogTemp, Warning, TEXT("SKill 1"));
+
+	FGameplayEventData Payload;
+
+	Payload.Instigator = this;
+
+	FGameplayTag Skill_1_Tag = FGameplayTag::RequestGameplayTag(FName("Event.Attack.Skill1"));
+	Payload.EventTag = Skill_1_Tag;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, Skill_1_Tag, Payload);
+}
+
+void ABaseHero::Skill_1_DamageEvent()
+{
+	FVector Start = GetActorLocation();
+	FVector End = GetActorLocation() + GetActorForwardVector() * 300.f;
+
+	TArray<AActor*> IgnoreActors;
+	IgnoreActors.Add(this);
+	TArray<FHitResult> Hits;
+
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	TEnumAsByte<EObjectTypeQuery> Pawn = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn);
+	ObjectTypes.Add(Pawn);
+
+	UKismetSystemLibrary::SphereTraceMultiForObjects(
+		this,
+		Start,
+		End,
+		100.f,
+		ObjectTypes,
+		false,
+		IgnoreActors,
+		EDrawDebugTrace::ForDuration,
+		Hits,
+		true
+	);
+
+	if (Hits.Num() != 0)
+	{
+		for (FHitResult& Hit : Hits)
+		{
+			if (!IgnoreActors.Contains(Hit.GetActor()))
+			{
+				if (ABaseCharacter* Target = Cast<ABaseCharacter>(Hit.GetActor()))
+				{
+					FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+					EffectContext.AddHitResult(Hit);
+					FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(SKill1Effect, 1, EffectContext);
+					SpecHandle.Data.Get()->SetSetByCallerMagnitude(FName("SkillDamageMultiplier"), 1.3f);
+					if (SpecHandle.IsValid())
+					{
+						UPTAbilitySystemComponent* TargetASC = Target->AbilitySystemComponent;
+						FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+					}
+					IgnoreActors.AddUnique(Hit.GetActor());
+				}
+			}
+		}	
+	}
+}
+
+void ABaseHero::Skill_2()
+{
+	UE_LOG(LogTemp, Warning, TEXT("SKill 2"));
+
+	FGameplayEventData Payload;
+
+	Payload.Instigator = this;
+
+	FGameplayTag Skill_2_Tag = FGameplayTag::RequestGameplayTag(FName("Event.Attack.Skill2"));
+	Payload.EventTag = Skill_2_Tag;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, Skill_2_Tag, Payload);
+
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Ignore);
+}
+
+void ABaseHero::Skill_2_DamageEvent()
+{
+	GetCapsuleComponent()->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollisionResponse::ECR_Block);
+
+	FVector Start = GetActorLocation();
+	FVector End = GetActorLocation() + GetActorForwardVector() * -500.f;
+
+	TArray<AActor*> IgnoreActors;
+	IgnoreActors.Add(this);
+	TArray<FHitResult> Hits; 
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	TEnumAsByte<EObjectTypeQuery> Pawn = UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn);
+	ObjectTypes.Add(Pawn);
+
+	UKismetSystemLibrary::SphereTraceMultiForObjects(
+		this,
+		Start,
+		End,
+		150.f,
+		ObjectTypes,
+		false,
+		IgnoreActors,
+		EDrawDebugTrace::ForDuration,
+		Hits,
+		true
+	);
+
+	if (Hits.Num() != 0)
+	{
+		for (FHitResult& Hit : Hits)
+		{
+			if (!IgnoreActors.Contains(Hit.GetActor()))
+			{
+				if (ABaseCharacter* Target = Cast<ABaseCharacter>(Hit.GetActor()))
+				{
+					FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+					EffectContext.AddHitResult(Hit);
+					FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(SKill1Effect, 1, EffectContext);
+					SpecHandle.Data.Get()->SetSetByCallerMagnitude(FName("SkillDamageMultiplier"), 2.0f);
+					if (SpecHandle.IsValid())
+					{
+						UPTAbilitySystemComponent* TargetASC = Target->AbilitySystemComponent;
+						FActiveGameplayEffectHandle ActiveGEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(*SpecHandle.Data.Get(), TargetASC);
+					}
+					IgnoreActors.AddUnique(Hit.GetActor());
+				}
+			}
+		}
+	}
+}
+
+void ABaseHero::Skill_3()
+{
+	UE_LOG(LogTemp, Warning, TEXT("SKill 3"));
+
+	FGameplayEventData Payload;
+
+	Payload.Instigator = this;
+
+	FGameplayTag Skill_3_Tag = FGameplayTag::RequestGameplayTag(FName("Event.Attack.Skill3"));
+	Payload.EventTag = Skill_3_Tag;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, Skill_3_Tag, Payload);
+}
+
+void ABaseHero::Skill_3_DamageEvent()
+{
+	
+	FVector Location = GetActorLocation() + GetActorForwardVector() * 30.f;
+	FRotator Rotation(0);
+	for (int i = 0; i < 3; i++)
+	{
+		ASkill3_SpawnActor* SpawnedActor = Cast<ASkill3_SpawnActor>(GetWorld()->SpawnActor(Skill3Actor, &Location, &Rotation));
+		SpawnedActor->SetOwner(this);
+
+		if (i == 0)
+		{
+			SpawnedActor->SetActorRotation(FRotator(GetActorRotation().Pitch, GetActorRotation().Yaw - 30.f, GetActorRotation().Roll));
+		}
+		else if (i == 1)
+		{
+			SpawnedActor->SetActorRotation(FRotator(GetActorRotation().Pitch, GetActorRotation().Yaw, GetActorRotation().Roll));
+		}
+		else
+		{
+			SpawnedActor->SetActorRotation(FRotator(GetActorRotation().Pitch, GetActorRotation().Yaw + 30.f, GetActorRotation().Roll));
+		}
+	}
+}
+
+void ABaseHero::Skill_4()
+{
+	UE_LOG(LogTemp, Warning, TEXT("SKill 4"));
+
+	FGameplayEventData Payload;
+
+	Payload.Instigator = this;
+
+	FGameplayTag Skill_4_Tag = FGameplayTag::RequestGameplayTag(FName("Event.Attack.SKill4"));
+	Payload.EventTag = Skill_4_Tag;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, Skill_4_Tag, Payload);
+}
+
+void ABaseHero::Skill_4_DamageEvent()
+{
 }
 
 void ABaseHero::OnRep_OverlappingItems()
