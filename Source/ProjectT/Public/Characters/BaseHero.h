@@ -55,6 +55,10 @@ protected:
 	UInputAction* Skill_3_Action;
 	UPROPERTY(EditDefaultsOnly)
 	UInputAction* Skill_4_Action;
+	UPROPERTY(EditDefaultsOnly)
+	UInputAction* UseHP;
+	UPROPERTY(EditDefaultsOnly)
+	UInputAction* UseMP;
 
 public:
 	/** Move */
@@ -100,11 +104,16 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Skills")
 	TSubclassOf<class ASKill4DecalActor> Skill4Decal;
 	ASKill4DecalActor* SKill4DecalActor;
+	/** Use */
+	UFUNCTION()
+	void UseHPPortion();
+	UFUNCTION()
+	void UseMPPortion();
 
 	/** MainScreenWidget */
 	UPROPERTY(EditDefaultsOnly)
 	TSubclassOf<class UMainScreenWidget> MainWidgetClass;
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	UMainScreenWidget* MainWidget;
 
 	/** Combat */

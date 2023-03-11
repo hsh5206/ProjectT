@@ -24,11 +24,24 @@ public:
 	UPTAttributeSet();
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	virtual void PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue) override;
+	virtual void PostAttributeChange(const FGameplayAttribute& Attribute, float OldValue, float NewValue);
 	virtual void PostGameplayEffectExecute(const FGameplayEffectModCallbackData& Data) override;
 
 	FAttributeChangeDelegate DeathDelegate;
 	
 	/** Attributes */
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_LV)
+	FGameplayAttributeData LV;
+	ATTRIBUTE_ACCESSORS(UPTAttributeSet, LV)
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_EXP)
+	FGameplayAttributeData EXP;
+	ATTRIBUTE_ACCESSORS(UPTAttributeSet, EXP)
+
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_MaxEXP)
+	FGameplayAttributeData MaxEXP;
+	ATTRIBUTE_ACCESSORS(UPTAttributeSet, MaxEXP)
+
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_Health)
 	FGameplayAttributeData Health;
 	ATTRIBUTE_ACCESSORS(UPTAttributeSet, Health)
@@ -68,6 +81,12 @@ public:
 
 protected:
 
+	UFUNCTION()
+	virtual void OnRep_LV(const FGameplayAttributeData& OldLV);
+	UFUNCTION()
+	virtual void OnRep_EXP(const FGameplayAttributeData& OldEXP);
+	UFUNCTION()
+	virtual void OnRep_MaxEXP(const FGameplayAttributeData& OldMaxEXP);
 	UFUNCTION()
 	virtual void OnRep_Health(const FGameplayAttributeData& OldHealth);
 	UFUNCTION()

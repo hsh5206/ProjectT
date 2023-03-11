@@ -119,6 +119,14 @@ void ABaseHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		{
 			PlayerEnhancedInputComponent->BindAction(Skill_4_Action, ETriggerEvent::Started, this, &ABaseHero::Skill_4);
 		}
+		if (UseHP)
+		{
+			PlayerEnhancedInputComponent->BindAction(UseHP, ETriggerEvent::Started, this, &ABaseHero::UseHPPortion);
+		}
+		if (UseMP)
+		{
+			PlayerEnhancedInputComponent->BindAction(UseMP, ETriggerEvent::Started, this, &ABaseHero::UseMPPortion);
+		}
 	}
 }
 
@@ -513,6 +521,30 @@ void ABaseHero::Skill_4_FinalDamageEvent()
 	SKill4DecalActor->FinalDamageToEnemies();
 	SKill4DecalActor->SetLifeSpan(0.1f);
 	SKill4DecalActor = nullptr;
+}
+
+void ABaseHero::UseHPPortion()
+{
+	FGameplayEventData Payload;
+
+	Payload.Instigator = this;
+
+	FGameplayTag PortionTag = FGameplayTag::RequestGameplayTag(FName("Event.Use.HPPortion"));
+	Payload.EventTag = PortionTag;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, PortionTag, Payload);
+}
+
+void ABaseHero::UseMPPortion()
+{
+	FGameplayEventData Payload;
+
+	Payload.Instigator = this;
+
+	FGameplayTag PortionTag = FGameplayTag::RequestGameplayTag(FName("Event.Use.MPPortion"));
+	Payload.EventTag = PortionTag;
+
+	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, PortionTag, Payload);
 }
 
 void ABaseHero::OnRep_OverlappingItems()

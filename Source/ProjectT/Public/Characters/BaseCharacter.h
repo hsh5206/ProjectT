@@ -42,7 +42,7 @@ public:
 	void MulticastDeath();
 	UPROPERTY(EditDefaultsOnly)
 	UAnimMontage* DeathMontage;
-	UPROPERTY(EditInstanceOnly)
+	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 	TSubclassOf<class ABaseItem> SpawnItemAfterDead;
 
 /**

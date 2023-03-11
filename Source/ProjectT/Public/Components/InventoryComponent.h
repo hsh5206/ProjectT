@@ -39,6 +39,8 @@ public:
 	void AddItem(ABaseItem* Item);
 	UFUNCTION(BlueprintCallable)
 	void DropItem(TSubclassOf<ABaseItem> Item);
+	UFUNCTION(BlueprintCallable)
+	void RemoveItem(TSubclassOf<ABaseItem> Item);
 	UFUNCTION(Server, Reliable)
 	void ServerSpawnItem(TSubclassOf<ABaseItem> Item, FVector Location, FRotator Rotation);
 	UFUNCTION(BlueprintCallable)

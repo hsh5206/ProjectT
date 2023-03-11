@@ -11,6 +11,7 @@
 #include "Characters/BaseHero.h"
 #include "Items/BaseWeapon.h"
 #include "Items/BaseRune.h"
+#include "Widgets/MainScreenWidget.h"
 
 UInventoryComponent::UInventoryComponent()
 {
@@ -61,6 +62,17 @@ void UInventoryComponent::AddItem(ABaseItem* Item)
 {
 	if (!Character) return;
 
+	if (Item->ActorHasTag(FName("HPPortion")))
+	{
+		int32 num = Cast<ABaseHero>(GetOwner())->MainWidget->GetHPPortion();
+		Cast<ABaseHero>(GetOwner())->MainWidget->SetHPPortion(num+1);
+	}
+	else if (Item->ActorHasTag(FName("MPPortion")))
+	{
+		int32 num = Cast<ABaseHero>(GetOwner())->MainWidget->GetMPPortion();
+		Cast<ABaseHero>(GetOwner())->MainWidget->SetMPPortion(num+1);
+	}
+
 	Inventory.Add(Item->GetClass());
 	InventoryWidget->UpdateInventory(Inventory);
 }
@@ -75,8 +87,34 @@ void UInventoryComponent::DropItem(TSubclassOf<ABaseItem> Item)
 			break;
 		}
 	}
+
+	if (Item.GetDefaultObject()->ActorHasTag(FName("HPPortion")))
+	{
+		int32 num = Cast<ABaseHero>(GetOwner())->MainWidget->GetHPPortion();
+		Cast<ABaseHero>(GetOwner())->MainWidget->SetHPPortion(num - 1);
+	}
+	else if (Item.GetDefaultObject()->ActorHasTag(FName("MPPortion")))
+	{
+		int32 num = Cast<ABaseHero>(GetOwner())->MainWidget->GetMPPortion();
+		Cast<ABaseHero>(GetOwner())->MainWidget->SetMPPortion(num - 1);
+	}
+
 	InventoryWidget->UpdateInventory(Inventory);
 	SpawnItem(Item);
+}
+
+void UInventoryComponent::RemoveItem(TSubclassOf<ABaseItem> Item)
+{
+	for (int32 i = Inventory.Num() - 1; i >= 0; i--)
+	{
+		if (Inventory[i] == Item)
+		{
+			Inventory.RemoveAt(i);
+			break;
+		}
+	}
+
+	InventoryWidget->UpdateInventory(Inventory);
 }
 
 void UInventoryComponent::SpawnItem(TSubclassOf<ABaseItem> Item)
