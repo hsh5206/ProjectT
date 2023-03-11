@@ -20,6 +20,8 @@
 #include "Characters/Skills/Skill3_SpawnActor.h"
 #include "Characters/Skills/SKill4DecalActor.h"
 #include "Characters/BaseEnemy.h"
+#include "Widgets/MainScreenWidget.h"
+#include "AbilitySystem/PTAttributeSet.h"
 
 #include "AbilitySystem/PTAbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
@@ -89,11 +91,6 @@ void ABaseHero::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 			PlayerEnhancedInputComponent->BindAction(MoveInputAction, ETriggerEvent::Started, this, &ABaseHero::OnMoveAction);
 			PlayerEnhancedInputComponent->BindAction(MoveInputAction, ETriggerEvent::Completed, this, &ABaseHero::OnMoveActionEnd);
 		}
-		if (JumpInputAction)
-		{
-			PlayerEnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Started, this, &ABaseHero::OnJumpAction);
-			PlayerEnhancedInputComponent->BindAction(JumpInputAction, ETriggerEvent::Completed, this, &ABaseHero::OnJumpActionEnd);
-		}
 		if (InventoryAction)
 		{
 			PlayerEnhancedInputComponent->BindAction(InventoryAction, ETriggerEvent::Started, this, &ABaseHero::OnInventoryPressed);
@@ -156,6 +153,13 @@ void ABaseHero::BeginPlay()
 	{
 		PickupWidget = CreateWidget(GetWorld(), PickupWidgetClass);
 	}
+	if (MainWidgetClass)
+	{
+		MainWidget = CreateWidget<UMainScreenWidget>(GetWorld(), MainWidgetClass);
+		MainWidget->AddToViewport();
+		MainWidget->SetHPBarPercent(Attributes->GetHealth(), Attributes->GetMaxHealth());
+		MainWidget->SetMPBarPercent(Attributes->GetMana(), Attributes->GetMaxMana());
+	}
 }
 
 void ABaseHero::PawnClientRestart()
@@ -207,18 +211,6 @@ void ABaseHero::OnMoveActionEnd()
 
 
 	AbilitySystemComponent->RemoveActiveGameplayEffect(MoveEffectHandle);
-}
-
-void ABaseHero::OnJumpAction()
-{
-}
-
-void ABaseHero::OnJumpActionEnd()
-{
-}
-
-void ABaseHero::Landed(const FHitResult& Hit)
-{
 }
 
 void ABaseHero::OnInventoryPressed()

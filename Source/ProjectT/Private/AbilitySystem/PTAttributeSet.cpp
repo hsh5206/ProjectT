@@ -5,6 +5,9 @@
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 
+#include "Characters/BaseHero.h"
+#include "Characters/BaseEnemy.h"
+
 UPTAttributeSet::UPTAttributeSet()
 {
 }
@@ -51,7 +54,6 @@ void UPTAttributeSet::PostGameplayEffectExecute(const FGameplayEffectModCallback
 void UPTAttributeSet::OnRep_Health(const FGameplayAttributeData& OldHealth)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UPTAttributeSet, Health, OldHealth);
-
 }
 
 void UPTAttributeSet::OnRep_MaxHealth(const FGameplayAttributeData& OldMaxHealth)

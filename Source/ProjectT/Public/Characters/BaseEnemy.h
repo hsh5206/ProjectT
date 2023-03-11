@@ -14,4 +14,9 @@ class PROJECTT_API ABaseEnemy : public ABaseCharacter
 {
 	GENERATED_BODY()
 	
+public:
+	ABaseEnemy();
+	virtual void BeginPlay() override;
+	UPROPERTY(VisibleAnywhere)
+	class UWidgetComponent* HealthBarWidget;
 };

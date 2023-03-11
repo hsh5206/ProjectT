@@ -62,10 +62,6 @@ public:
 	bool bIsMovePressed = false;
 	void OnMoveAction();
 	void OnMoveActionEnd();
-	/** Jump */
-	void OnJumpAction();
-	void OnJumpActionEnd();
-	virtual void Landed(const FHitResult& Hit) override;
 	/** Interaction */
 	void OnInteractionPressed();
 	UFUNCTION(Server, Reliable)
@@ -104,6 +100,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Skills")
 	TSubclassOf<class ASKill4DecalActor> Skill4Decal;
 	ASKill4DecalActor* SKill4DecalActor;
+
+	/** MainScreenWidget */
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UMainScreenWidget> MainWidgetClass;
+	UPROPERTY()
+	UMainScreenWidget* MainWidget;
 
 	/** Combat */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
