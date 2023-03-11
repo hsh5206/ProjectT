@@ -16,6 +16,7 @@ public:
 	APTAIController();
 
 	static const FName Key_Target;
+	AActor* Opponent;
 
 protected:
 	virtual void OnPossess(APawn* InPawn) override;
@@ -26,6 +27,7 @@ private:
 	UBlackboardComponent* BlackboardComponent;
 
 	APawn* ControlledPawn;
+	
 	
 public:
 	/** AI Perception */

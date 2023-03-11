@@ -167,6 +167,7 @@ void ABaseHero::BeginPlay()
 		MainWidget->AddToViewport();
 		MainWidget->SetHPBarPercent(Attributes->GetHealth(), Attributes->GetMaxHealth());
 		MainWidget->SetMPBarPercent(Attributes->GetMana(), Attributes->GetMaxMana());
+		MainWidget->SetEXPBarPercent(Attributes->GetEXP(), Attributes->GetMaxEXP());
 	}
 }
 

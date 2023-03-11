@@ -74,6 +74,10 @@ public:
 	FGameplayAttributeData Durability;	// 내구
 	ATTRIBUTE_ACCESSORS(UPTAttributeSet, Durability)
 
+	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_StatPoint)
+	FGameplayAttributeData StatPoint;	// 스탯 포인트
+	ATTRIBUTE_ACCESSORS(UPTAttributeSet, StatPoint)
+
 	/** Meta Attributes */
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes")
 	FGameplayAttributeData Damage;
@@ -103,5 +107,7 @@ protected:
 	virtual void OnRep_Agility(const FGameplayAttributeData& OldAgility);
 	UFUNCTION()
 	virtual void OnRep_Durability(const FGameplayAttributeData& OldDurability);
+	UFUNCTION()
+	virtual void OnRep_StatPoint(const FGameplayAttributeData& OldStatPoint);
 
 };

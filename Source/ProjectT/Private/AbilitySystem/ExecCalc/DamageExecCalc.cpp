@@ -66,7 +66,7 @@ void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutio
 			Damage = Weapon->Damage;
 		}
 	}
-	Damage = (Damage + Power * 2.f) + (1.f + Agility * 0.1f);
+	Damage = (Damage + Power * 2.f) * (1.f + Agility * 0.1f);
 
 	// Damage Calcuate
 	float MitigatedDamage = Damage - Durability * 2.f;

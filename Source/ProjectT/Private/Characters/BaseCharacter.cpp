@@ -4,12 +4,16 @@
 #include "Characters/BaseCharacter.h"
 
 #include "Components/CapsuleComponent.h"
+#include "Blueprint/UserWidget.h"
 
 #include "AbilitySystem/PTAbilitySystemComponent.h"
 #include "AbilitySystem/PTAttributeSet.h"
 #include "AbilitySystem/PTGameplayAbility.h"
 #include "AbilitySystemBlueprintLibrary.h"
 #include "Items/BaseItem.h"
+#include "Characters/BaseHero.h"
+#include "Characters/BaseEnemy.h"
+#include "Characters/PTAIController.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -31,6 +35,11 @@ void ABaseCharacter::BeginPlay()
 	{
 		Attributes->DeathDelegate.AddDynamic(this, &ABaseCharacter::ServerDeath);
 	}
+
+	if (DeathScreenClass)
+	{
+		DeathScreen = CreateWidget(GetWorld(), DeathScreenClass);
+	}
 }
 
 void ABaseCharacter::ServerDeath_Implementation()
@@ -49,6 +58,32 @@ void ABaseCharacter::MulticastDeath_Implementation()
 	if (SpawnItemAfterDead)
 	{
 		GetWorld()->SpawnActor(SpawnItemAfterDead, &GetActorTransform());
+	}
+
+	if (ABaseEnemy* Enemy = Cast<ABaseEnemy>(this))
+	{
+		if (ABaseHero* Hero = Cast<ABaseHero>(Cast<APTAIController>(GetController())->Opponent))
+		{
+			FGameplayEventData Payload;
+			FGameplayTag Tag = FGameplayTag::RequestGameplayTag(FName("Event.LvUp.GetEXP"));
+
+			UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Hero, Tag, Payload);
+		}
+	}
+
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+	FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DeathEffect, 1, EffectContext);
+	if (SpecHandle.IsValid())
+	{
+		FActiveGameplayEffectHandle GEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+	}
+
+	if (ABaseHero* Hero = Cast<ABaseHero>(this))
+	{
+		if (DeathScreen)
+		{
+			DeathScreen->AddToViewport();
+		}
 	}
 }
 

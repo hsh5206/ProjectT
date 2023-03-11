@@ -44,6 +44,11 @@ public:
 	UAnimMontage* DeathMontage;
 	UPROPERTY(EditInstanceOnly, BlueprintReadWrite)
 	TSubclassOf<class ABaseItem> SpawnItemAfterDead;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UGameplayEffect> DeathEffect;
+	UPROPERTY(EditDefaultsOnly)
+	TSubclassOf<class UUserWidget> DeathScreenClass;
+	UUserWidget* DeathScreen;
 
 /**
 *

@@ -68,6 +68,7 @@ void APTAIController::PerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 					if (Stim.WasSuccessfullySensed())
 					{
 						Blackboard->SetValueAsObject(Key_Target, UpdatedActor);
+						Opponent = UpdatedActor;
 					}
 					/*else
 					{

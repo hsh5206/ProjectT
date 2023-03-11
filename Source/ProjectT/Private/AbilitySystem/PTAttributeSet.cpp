@@ -5,6 +5,7 @@
 #include "Net/UnrealNetwork.h"
 #include "GameplayEffectExtension.h"
 #include "Components/WidgetComponent.h"
+#include "AbilitySystemBlueprintLibrary.h"
 
 #include "Characters/BaseHero.h"
 #include "Characters/BaseEnemy.h"
@@ -30,6 +31,7 @@ void UPTAttributeSet::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutL
 	DOREPLIFETIME_CONDITION_NOTIFY(UPTAttributeSet, Power, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UPTAttributeSet, Agility, COND_None, REPNOTIFY_Always);
 	DOREPLIFETIME_CONDITION_NOTIFY(UPTAttributeSet, Durability, COND_None, REPNOTIFY_Always);
+	DOREPLIFETIME_CONDITION_NOTIFY(UPTAttributeSet, StatPoint, COND_None, REPNOTIFY_Always);
 }
 
 void UPTAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, float& NewValue)
@@ -44,7 +46,10 @@ void UPTAttributeSet::PreAttributeChange(const FGameplayAttribute& Attribute, fl
 	{
 		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxMana());
 	}
-
+	else if (Attribute == GetEXPAttribute())
+	{
+		NewValue = FMath::Clamp(NewValue, 0.f, GetMaxEXP());
+	}
 	
 }
 
@@ -86,7 +91,16 @@ void UPTAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 		{
 			if (UMainScreenWidget* MainWidget = Hero->MainWidget)
 			{
+				if (FMath::IsNearlyEqual(GetEXP(), GetMaxEXP()))
+				{
+					FGameplayEventData Payload;
+					FGameplayTag Tag = FGameplayTag::RequestGameplayTag(FName("Event.LvUp.LvUp"));
+
+					UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(Hero, Tag, Payload);
+				}
+
 				Hero->MainWidget->SetEXPBarPercent(GetEXP(), GetMaxEXP());
+
 			}
 		}
 	}
@@ -158,4 +172,10 @@ void UPTAttributeSet::OnRep_Agility(const FGameplayAttributeData& OldAgility)
 void UPTAttributeSet::OnRep_Durability(const FGameplayAttributeData& OldDurability)
 {
 	GAMEPLAYATTRIBUTE_REPNOTIFY(UPTAttributeSet, Durability, OldDurability);
+}
+
+void UPTAttributeSet::OnRep_StatPoint(const FGameplayAttributeData& OldStatPoint)
+{
+	GAMEPLAYATTRIBUTE_REPNOTIFY(UPTAttributeSet, StatPoint, OldStatPoint);
+
 }
