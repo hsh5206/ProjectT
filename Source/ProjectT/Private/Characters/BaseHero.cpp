@@ -470,7 +470,6 @@ void ABaseHero::Skill_3()
 
 void ABaseHero::Skill_3_DamageEvent()
 {
-	
 	FVector Location = GetActorLocation() + GetActorForwardVector() * 30.f;
 	FRotator Rotation(0);
 	for (int i = 0; i < 3; i++)
@@ -495,20 +494,22 @@ void ABaseHero::Skill_3_DamageEvent()
 
 void ABaseHero::Skill_4()
 {
-	UE_LOG(LogTemp, Warning, TEXT("SKill 4"));
-	FGameplayEventData Payload;
+	if (Attributes->GetMana() >= 30.f)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SKill 4"));
 
-	Payload.Instigator = this;
+		FGameplayEventData Payload;
+		Payload.Instigator = this;
+		FGameplayTag Skill_4_Tag = FGameplayTag::RequestGameplayTag(FName("Event.Attack.SKill4"));
+		Payload.EventTag = Skill_4_Tag;
 
-	FGameplayTag Skill_4_Tag = FGameplayTag::RequestGameplayTag(FName("Event.Attack.SKill4"));
-	Payload.EventTag = Skill_4_Tag;
+		UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, Skill_4_Tag, Payload);
 
-	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, Skill_4_Tag, Payload);
-
-	FVector Location = GetActorLocation() + GetActorForwardVector() * 300.f;
-	FRotator Rotation(0);
-	SKill4DecalActor = Cast<ASKill4DecalActor>(GetWorld()->SpawnActor(Skill4Decal, &Location, &Rotation));
-	SKill4DecalActor->SetOwner(this);
+		FVector Location = GetActorLocation() + GetActorForwardVector() * 300.f;
+		FRotator Rotation(0);
+		SKill4DecalActor = Cast<ASKill4DecalActor>(GetWorld()->SpawnActor(Skill4Decal, &Location, &Rotation));
+		SKill4DecalActor->SetOwner(this);
+	}
 }
 
 void ABaseHero::Skill_4_DamageEvent()

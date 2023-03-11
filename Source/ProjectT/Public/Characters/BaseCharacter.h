@@ -67,7 +67,7 @@ public:
 
 	/** Effect */
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
-	TSubclassOf<class UGameplayEffect> DefaultAttributeEffect;
+	TArray<TSubclassOf<class UGameplayEffect>> DefaultAttributeEffects;
 	UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, Category = "GAS")
 	TSubclassOf<class UGameplayEffect> MoveEffect;
 	FActiveGameplayEffectHandle MoveEffectHandle;

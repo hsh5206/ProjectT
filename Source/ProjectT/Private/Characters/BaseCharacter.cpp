@@ -86,15 +86,18 @@ UAbilitySystemComponent* ABaseCharacter::GetAbilitySystemComponent() const
 
 void ABaseCharacter::InitializeAttributes()
 {
-	if (AbilitySystemComponent && DefaultAttributeEffect)
+	if (AbilitySystemComponent && DefaultAttributeEffects.IsValidIndex(0))
 	{
-		FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
-		EffectContext.AddSourceObject(this);
-
-		FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributeEffect, 1, EffectContext);
-		if (SpecHandle.IsValid())
+		for (auto DefaultAttributeEffect : DefaultAttributeEffects)
 		{
-			FActiveGameplayEffectHandle GEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+			FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+			EffectContext.AddSourceObject(this);
+
+			FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(DefaultAttributeEffect, 1, EffectContext);
+			if (SpecHandle.IsValid())
+			{
+				FActiveGameplayEffectHandle GEHandle = AbilitySystemComponent->ApplyGameplayEffectSpecToSelf(*SpecHandle.Data.Get());
+			}
 		}
 	}
 }

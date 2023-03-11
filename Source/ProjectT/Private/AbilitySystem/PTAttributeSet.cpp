@@ -75,7 +75,7 @@ void UPTAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 		{
 			if (UMainScreenWidget* MainWidget = Hero->MainWidget)
 			{
-				Hero->MainWidget->SetHPBarPercent(GetMana(), GetMaxMana());
+				Hero->MainWidget->SetMPBarPercent(GetMana(), GetMaxMana());
 			}
 		}
 	}
@@ -86,7 +86,7 @@ void UPTAttributeSet::PostAttributeChange(const FGameplayAttribute& Attribute, f
 		{
 			if (UMainScreenWidget* MainWidget = Hero->MainWidget)
 			{
-				Hero->MainWidget->SetHPBarPercent(GetEXP(), GetMaxEXP());
+				Hero->MainWidget->SetEXPBarPercent(GetEXP(), GetMaxEXP());
 			}
 		}
 	}
