@@ -6,6 +6,7 @@
 #include "Characters/BaseHero.h"
 #include "Components/InventoryComponent.h"
 #include "Items/BaseWeapon.h"
+#include "Characters/BaseEnemy.h"
 
 UDamageExecCalc::UDamageExecCalc(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
@@ -51,6 +52,11 @@ void UDamageExecCalc::Execute_Implementation(const FGameplayEffectCustomExecutio
 
 	float Damage = 0.f;
 	ExecutionParams.AttemptCalculateCapturedAttributeMagnitude(Attributes.DamageDef, EvaluationParameters, Damage);
+
+	if (ABaseEnemy* Enemy = Cast<ABaseEnemy>(Source))
+	{
+		Damage += 10.f;
+	}
 
 	// Set Base Damage
 	if (ABaseHero* SourceCharacter = Cast<ABaseHero>(Source))

@@ -9,6 +9,7 @@
 #include "AbilitySystem/PTAttributeSet.h"
 #include "AbilitySystem/PTGameplayAbility.h"
 #include "AbilitySystemBlueprintLibrary.h"
+#include "Items/BaseItem.h"
 
 ABaseCharacter::ABaseCharacter()
 {
@@ -44,6 +45,11 @@ void ABaseCharacter::MulticastDeath_Implementation()
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	bIsDead = true;
 	SetLifeSpan(5.f);
+	
+	if (SpawnItemAfterDead)
+	{
+		GetWorld()->SpawnActor(SpawnItemAfterDead, &GetActorTransform());
+	}
 }
 
 void ABaseCharacter::ServerPlayMontage_Implementation(UAnimMontage* Montage, FName SectionName)

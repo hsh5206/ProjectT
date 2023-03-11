@@ -360,6 +360,7 @@ void ABaseHero::Skill_1_DamageEvent()
 			{
 				if (ABaseCharacter* Target = Cast<ABaseCharacter>(Hit.GetActor()))
 				{
+					if (Target->bIsDead) continue;
 					FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
 					EffectContext.AddHitResult(Hit);
 					FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(SKill1Effect, 1, EffectContext);
@@ -427,6 +428,8 @@ void ABaseHero::Skill_2_DamageEvent()
 			{
 				if (ABaseCharacter* Target = Cast<ABaseCharacter>(Hit.GetActor()))
 				{
+					if (Target->bIsDead) continue;
+
 					FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
 					EffectContext.AddHitResult(Hit);
 					FGameplayEffectSpecHandle SpecHandle = AbilitySystemComponent->MakeOutgoingSpec(SKill1Effect, 1, EffectContext);

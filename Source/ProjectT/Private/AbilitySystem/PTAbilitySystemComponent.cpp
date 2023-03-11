@@ -15,13 +15,14 @@ void UPTAbilitySystemComponent::ReceiveDamage(UPTAbilitySystemComponent* SourceA
 	OnReceiveDamage.Broadcast(SourceASC, MitigatedDamage);
 
 	/** Damage On Screen */
+
+	/** HealthBar Change */
 	if (ABaseHero* Hero = Cast<ABaseHero>(GetOwner()))
 	{
 		Hero->MainWidget->SetHPBarPercent(Hero->Attributes->GetHealth() - MitigatedDamage, Hero->Attributes->GetMaxHealth());
 	}
 	else if (ABaseEnemy* Enemy = Cast<ABaseEnemy>(GetOwner()))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Enemy Health Changed! HP : %f"), Enemy->Attributes->GetHealth() - MitigatedDamage);
 		Cast<UEnemyHealthBar>(Enemy->HealthBarWidget->GetWidget())->SetHPBarPercent(Enemy->Attributes->GetHealth() - MitigatedDamage, Enemy->Attributes->GetMaxHealth());
 	}
 }
