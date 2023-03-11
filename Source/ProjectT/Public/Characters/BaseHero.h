@@ -99,6 +99,11 @@ public:
 	void Skill_4();
 	UFUNCTION(BlueprintCallable)
 	void Skill_4_DamageEvent();
+	UFUNCTION(BlueprintCallable)
+	void Skill_4_FinalDamageEvent();
+	UPROPERTY(EditDefaultsOnly, Category = "Skills")
+	TSubclassOf<class ASKill4DecalActor> Skill4Decal;
+	ASKill4DecalActor* SKill4DecalActor;
 
 	/** Combat */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

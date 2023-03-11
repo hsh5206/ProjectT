@@ -18,6 +18,8 @@
 #include "Components/CombatComponent.h"
 #include "Items/BaseItem.h"
 #include "Characters/Skills/Skill3_SpawnActor.h"
+#include "Characters/Skills/SKill4DecalActor.h"
+#include "Characters/BaseEnemy.h"
 
 #include "AbilitySystem/PTAbilitySystemComponent.h"
 #include "AbilitySystemBlueprintLibrary.h"
@@ -251,6 +253,7 @@ void ABaseHero::OnInteractionPressed()
 
 void ABaseHero::BasicAttack()
 {
+	if (!InventoryComponent->EquippingWeapon) return;
 	if (CanNextCombo)
 	{
 		/*if (HasAuthority())
@@ -352,7 +355,7 @@ void ABaseHero::Skill_1_DamageEvent()
 		ObjectTypes,
 		false,
 		IgnoreActors,
-		EDrawDebugTrace::ForDuration,
+		EDrawDebugTrace::None,
 		Hits,
 		true
 	);
@@ -419,7 +422,7 @@ void ABaseHero::Skill_2_DamageEvent()
 		ObjectTypes,
 		false,
 		IgnoreActors,
-		EDrawDebugTrace::ForDuration,
+		EDrawDebugTrace::None,
 		Hits,
 		true
 	);
@@ -490,7 +493,6 @@ void ABaseHero::Skill_3_DamageEvent()
 void ABaseHero::Skill_4()
 {
 	UE_LOG(LogTemp, Warning, TEXT("SKill 4"));
-
 	FGameplayEventData Payload;
 
 	Payload.Instigator = this;
@@ -499,10 +501,23 @@ void ABaseHero::Skill_4()
 	Payload.EventTag = Skill_4_Tag;
 
 	UAbilitySystemBlueprintLibrary::SendGameplayEventToActor(this, Skill_4_Tag, Payload);
+
+	FVector Location = GetActorLocation() + GetActorForwardVector() * 300.f;
+	FRotator Rotation(0);
+	SKill4DecalActor = Cast<ASKill4DecalActor>(GetWorld()->SpawnActor(Skill4Decal, &Location, &Rotation));
+	SKill4DecalActor->SetOwner(this);
 }
 
 void ABaseHero::Skill_4_DamageEvent()
 {
+	SKill4DecalActor->DamageToEnemies();
+}
+
+void ABaseHero::Skill_4_FinalDamageEvent()
+{
+	SKill4DecalActor->FinalDamageToEnemies();
+	SKill4DecalActor->SetLifeSpan(0.1f);
+	SKill4DecalActor = nullptr;
 }
 
 void ABaseHero::OnRep_OverlappingItems()
